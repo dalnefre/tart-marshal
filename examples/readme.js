@@ -33,4 +33,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 var tart = require('tart');
 var marshal = require('../index.js');
 
-var sponsor = tart.minimal();
+var sponsor0 = tart.minimal();
+var sponsor1 = tart.minimal();
+
+var pingBeh = function pingBeh(message) {
+    if (message.value === undefined) {
+        var pong = message.pong;
+        pong({ ping:this.self, pong:pong, value:0 });
+    } else {
+        console.log('ping', message.value);
+    }
+};
+
+var pongBeh = function pongBeh(message) {
+    var ping = message.ping;
+    ping({ ping:ping, pong:this.self, value:1 });
+    console.log('pong', message.value);
+};
+
+var ping = sponsor0(pingBeh);
+var pong = sponsor1(pongBeh);
+
+var proxyCaps = marshal.proxy(pong);
+var pongStub = sponsor0(proxyCaps.stubBeh);
+var pongProxy = sposor1(proxyCaps.proxyBeh);
+
+ping({ pong:pongProxy });
