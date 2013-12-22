@@ -1,0 +1,33 @@
+{
+  "name": "tart-marshal",
+  "version": "0.1.0",
+  "description": "Send messages between memory domains (tart module)",
+  "scripts": {
+    "inject-examples": "node scripts/injectExamples.js",
+    "readme": "node examples/readme.js",
+    "test": "node scripts/test.js"
+  },
+  "main": "index.js",
+  "devDependencies": {
+    "tart-tracing": "0.1.4",
+    "nodeunit": "0.8.1"
+  },
+  "dependencies": {
+    "tart": "0.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:dalnefre/tart-marshal.git"
+  },
+  "keywords": [
+    "tart",
+    "actor",
+    "marshal",
+    "reference"
+  ],
+  "contributors": [
+    "Dale Schumacher <dale.schumacher@gmail.com>",
+    "Tristan Slominski <tristan.slominski@gmail.com>"
+  ],
+  "license": "MIT"
+}
