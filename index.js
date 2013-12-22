@@ -32,14 +32,60 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 var marshal = module.exports;
 
+var localToRemote = function localToRemote(value) {
+    value = /* token corresponding to function value */;
+    return "=" + value;
+};
+var encodeString = function encodeString(value) {
+    return "'" + value;
+};
+var replacer = function replacer(key, value) {
+    if (typeof value === 'function') {
+        return localToRemote(value);
+    }
+    if (typeof value === 'string') {
+        return encodeString(value);
+    }
+    return value;
+};
 marshal.encode = function encode(message) {
     var json;
-    json = JSON.stringify(message);
+    json = JSON.stringify(message, replacer);
     return json;
 };
 
+var isRemote = function isRemote(value) {
+    return (value.charAt(0) === "=");
+};
+var remoteToLocal = function remoteToLocal(value) {
+    return /* function corresponding to token value */;
+};
+var decodeString = function decodeString(value) {
+    return value.slice(1);
+};
+var reviver = function reviver(key, value) {
+    if (typeof value === 'string') {
+        if (isRemote(value)) {
+            return remoteToLocal(value);
+        } else {
+            return decodeString(value);
+        }
+    }
+    return value;
+};
 marshal.decode = function decode(json) {
     var message;
-    message = JSON.parse(json);
+    message = JSON.parse(json, reviver);
     return message;
+};
+
+marshal.proxy(pong) = function proxy(actor) {
+    var proxyCaps = {};
+    proxyCaps.proxyBeh = function (message) {
+        // ...
+    };
+    proxyCaps.stubBeh = function (message) {
+        // ...
+    };
+    return proxyCaps;
 };
