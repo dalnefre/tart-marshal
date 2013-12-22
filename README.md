@@ -37,8 +37,8 @@ var ping = sponsor0(pingBeh);
 var pong = sponsor1(pongBeh);
 
 var proxyCaps = marshal.proxy(pong);
-var pongStub = sponsor0(proxyCaps.stubBeh);
-var pongProxy = sposor1(proxyCaps.proxyBeh);
+var pongProxy = sponsor0(proxyCaps.proxyBeh);
+var pongStub = sponsor1(proxyCaps.stubBeh);
 
 ping({ pong:pongProxy });
 
