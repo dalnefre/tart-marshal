@@ -65,7 +65,7 @@ marshal.domain = function domain(name, sponsor) {
         return token;
     };
     var encodeToken = function encodeToken(value) {
-        return "=" name + "?" + value;
+        return "=" + name + "?" + value;
     };
 
     var remoteToLocal = function remoteToLocal(remote) {
@@ -87,7 +87,7 @@ marshal.domain = function domain(name, sponsor) {
         var dom = domainMap[addr.name];
         if (!dom) { throw Error('Unknown domain: ' + addr.name); }
         var json = encode(message);
-        dom.localSend(token, json);
+        dom.localSend(remote, json);
     };
     var tokenPattern = /^=([^?]+)\?(.+)$/;
     var decodeToken = function decodeToken(token) {
@@ -99,6 +99,7 @@ marshal.domain = function domain(name, sponsor) {
         } : undefined);
     };
     var localSend = function localSend(remote, json) {
+        console.log('localSend:', remote, json);
         var local = tokenMap[remote];
         if (!local) { throw Error('Unknown remote: ' + remote); }
         var message = decode(json);
