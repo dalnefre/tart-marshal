@@ -27,6 +27,7 @@ var pingBeh = function pingBeh(message) {
         pong({ ping:this.self, pong:pong, value:"pinging" });
     } else {
         console.log('ping', message.value);
+        console.log('(ping === message.ping)', (ping === message.ping));
     }
 };
 

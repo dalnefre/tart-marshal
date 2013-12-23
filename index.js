@@ -47,12 +47,14 @@ marshal.domain = function domain(name, sponsor) {
         var remote;
         for (remote in tokenMap) {
             if (tokenMap[remote] === local) {
+                console.log('localToRemote(found):', name, remote);
                 return remote;
             }
         }
         /* not found, create a new entry */
         remote = encodeToken(generateToken());
         tokenMap[remote] = local;
+        console.log('localToRemote(created):', name, remote);
         return remote;
     };
     var generateToken = function generateToken() {
@@ -65,6 +67,7 @@ marshal.domain = function domain(name, sponsor) {
         return token;
     };
     var encodeToken = function encodeToken(value) {
+        console.log('encodeToken:', name, value);
         return "=" + name + "?" + value;
     };
 
@@ -72,10 +75,13 @@ marshal.domain = function domain(name, sponsor) {
         var local = tokenMap[remote];
         if (local === undefined) {
             local = proxy(remote);
+            tokenMap[remote] = local;
         }
+        console.log('remoteToLocal:', name, remote);
         return local;
     };
     var proxy = function proxy(remote) {
+        console.log('proxy:', name, remote);
         return sponsor(function (message) {
             remoteSend(remote, message);
         });

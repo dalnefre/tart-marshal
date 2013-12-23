@@ -45,3 +45,39 @@ test['tracing event loop runs to completion'] = function (test) {
     test.ok(tracing.eventLoop());
     test.done();
 };
+
+test['ping/pong example from README'] = function (test) {
+    test.expect(4);
+    var tracing = tart.tracing();
+    var sponsor = tracing.sponsor;
+    
+    var domain0 = marshal.domain('ocap://zero.foo.com/', sponsor);
+    var domain1 = marshal.domain('ocap://one.bar.com/', sponsor);
+
+    var pingBeh = function pingBeh(message) {
+        if (message.value === undefined) {
+            var pong = message.pong;
+            pong({ ping:this.self, pong:pong, value:'pinging' });
+        } else {
+            test.equal(message.value, 'ponging');
+            test.strictEqual(message.ping, ping);
+        }
+    };
+
+    var pongBeh = function pongBeh(message) {
+        var ping = message.ping;
+        ping({ ping:ping, pong:this.self, value:'ponging' });
+        test.equal(message.value, 'pinging');
+    };
+
+    var ping = domain0.sponsor(pingBeh);
+    var pong = domain1.sponsor(pongBeh);
+
+    var pingRemote = domain0.localToRemote(ping);
+//  var pongRemote = domain1.localToRemote(pong);
+
+    domain1.remoteSend(pingRemote, { pong:pong });
+
+    test.ok(tracing.eventLoop());
+    test.done();
+};
