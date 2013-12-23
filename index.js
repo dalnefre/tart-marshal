@@ -32,9 +32,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 var marshal = module.exports;
 
-marshal.domain = function domain(sponsor) {
+var domainMap = {};
+
+marshal.domain = function domain(name, sponsor) {
+    var self = {};
     var sequence = 0;
     var tokenMap = {};
+
+    self.name = name;
+    self.sponsor = sponsor;
+    domainMap[name] = self;
 
     var localToRemote = function localToRemote(local) {
         var remote;
@@ -58,7 +65,7 @@ marshal.domain = function domain(sponsor) {
         return token;
     };
     var encodeToken = function encodeToken(value) {
-        return "=" + value;
+        return "=" name + "?" + value;
     };
 
     var remoteToLocal = function remoteToLocal(remote) {
@@ -75,8 +82,27 @@ marshal.domain = function domain(sponsor) {
     };
     
     var remoteSend = function remoteSend(remote, message) {
+        var addr = decodeToken(remote);
+        if (!addr) { throw Error('Bad remote format: ' + remote); }
+        var dom = domainMap[addr.name];
+        if (!dom) { throw Error('Unknown domain: ' + addr.name); }
         var json = encode(message);
-        //...
+        dom.localSend(token, json);
+    };
+    var tokenPattern = /^=([^?]+)\?(.+)$/;
+    var decodeToken = function decodeToken(token) {
+        var result = tokenPattern.exec(token);
+        return (result ? {
+            name: result[1],
+            value: result[2],
+            token: result[0]
+        } : undefined);
+    };
+    var localSend = function localSend(remote, json) {
+        var local = tokenMap[remote];
+        if (!local) { throw Error('Unknown remote: ' + remote); }
+        var message = decode(json);
+        local(message);
     };
 
     var encode = function encode(message) {
@@ -119,19 +145,8 @@ marshal.domain = function domain(sponsor) {
         return value.slice(1);
     };
 
-    return {
-        encode: encode,
-        decode: decode
-    };
-};
-
-marshal.proxy(pong) = function proxy(actor) {
-    var proxyCaps = {};
-    proxyCaps.proxyBeh = function (message) {
-        // ...
-    };
-    proxyCaps.stubBeh = function (message) {
-        // ...
-    };
-    return proxyCaps;
+    self.localToRemote = localToRemote;
+    self.remoteSend = remoteSend;
+    self.localSend = localSend;
+    return self;
 };
