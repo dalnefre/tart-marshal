@@ -32,51 +32,97 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 var marshal = module.exports;
 
-var localToRemote = function localToRemote(value) {
-    value = /* token corresponding to function value */;
-    return "=" + value;
-};
-var encodeString = function encodeString(value) {
-    return "'" + value;
-};
-var replacer = function replacer(key, value) {
-    if (typeof value === 'function') {
-        return localToRemote(value);
-    }
-    if (typeof value === 'string') {
-        return encodeString(value);
-    }
-    return value;
-};
-marshal.encode = function encode(message) {
-    var json;
-    json = JSON.stringify(message, replacer);
-    return json;
-};
+marshal.domain = function domain(sponsor) {
+    var sequence = 0;
+    var tokenMap = {};
 
-var isRemote = function isRemote(value) {
-    return (value.charAt(0) === "=");
-};
-var remoteToLocal = function remoteToLocal(value) {
-    return /* function corresponding to token value */;
-};
-var decodeString = function decodeString(value) {
-    return value.slice(1);
-};
-var reviver = function reviver(key, value) {
-    if (typeof value === 'string') {
-        if (isRemote(value)) {
-            return remoteToLocal(value);
-        } else {
-            return decodeString(value);
+    var localToRemote = function localToRemote(local) {
+        var remote;
+        for (remote in tokenMap) {
+            if (tokenMap[remote] === local) {
+                return remote;
+            }
         }
-    }
-    return value;
-};
-marshal.decode = function decode(json) {
-    var message;
-    message = JSON.parse(json, reviver);
-    return message;
+        /* not found, create a new entry */
+        remote = encodeToken(generateToken());
+        tokenMap[remote] = local;
+        return remote;
+    };
+    var generateToken = function generateToken() {
+        var crypto = require('crypto');
+        var fodder = '' 
+            + (++sequence) 
+            + (new Date()).getTime() 
+            + process.hrtime();
+        var token = crypto.createHash('sha1').update(fodder).digest('base64');
+        return token;
+    };
+    var encodeToken = function encodeToken(value) {
+        return "=" + value;
+    };
+
+    var remoteToLocal = function remoteToLocal(remote) {
+        var local = tokenMap[remote];
+        if (local === undefined) {
+            local = proxy(remote);
+        }
+        return local;
+    };
+    var proxy = function proxy(remote) {
+        return sponsor(function (message) {
+            remoteSend(remote, message);
+        });
+    };
+    
+    var remoteSend = function remoteSend(remote, message) {
+        var json = encode(message);
+        //...
+    };
+
+    var encode = function encode(message) {
+        var json;
+        json = JSON.stringify(message, replacer);
+        return json;
+    };
+    var replacer = function replacer(key, value) {
+        if (typeof value === 'function') {
+            return localToRemote(value);
+        }
+        if (typeof value === 'string') {
+            return encodeString(value);
+        }
+        return value;
+    };
+    var encodeString = function encodeString(value) {
+        return "'" + value;
+    };
+
+    var decode = function decode(json) {
+        var message;
+        message = JSON.parse(json, reviver);
+        return message;
+    };
+    var reviver = function reviver(key, value) {
+        if (typeof value === 'string') {
+            if (isRemote(value)) {
+                return remoteToLocal(value);
+            } else {
+                return decodeString(value);
+            }
+        }
+        return value;
+    };
+    var isRemote = function isRemote(value) {
+        return (value.charAt(0) === "=");
+    };
+    var decodeString = function decodeString(value) {
+        return value.slice(1);
+    };
+
+    return {
+        encode: encode,
+        decode: decode
+    };
 };
 
 marshal.proxy(pong) = function proxy(actor) {
