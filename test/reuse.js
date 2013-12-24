@@ -1,6 +1,6 @@
 /*
 
-implicit.js - implicit marshal test
+reuse.js - reuse created tokens test
 
 The MIT License (MIT)
 
@@ -35,26 +35,27 @@ var tart = require('tart-tracing');
 
 var test = module.exports = {};
 
-test['capability in a message is marshalled when crossing domains'] = function (test) {
-    test.expect(4);
+test['an already created remote reference should be reused for the same actor'] = function (test) {
+    test.expect(2);
     var tracing = tart.tracing();
     var sponsor = tracing.sponsor;
 
     var domain0 = marshal.domain('ocap://zero.foo.com/', sponsor);
     var domain1 = marshal.domain('ocap://one.foo.com/', sponsor);
 
-    var remote1Beh = function remote1Beh(implicits) {
-        test.equal(implicits.length, 2);
-        test.notStrictEqual(implicits[0], implicitA);
-        test.notStrictEqual(implicits[1], implicitB);
+    var remoteBeh = function remoteBeh(firstDelivery) {
+        this.behavior = function (secondDelivery) {
+            // second time expect *the same* actor
+            test.strictEqual(firstDelivery, secondDelivery);
+        };
     };
 
-    var implicitA = domain0.sponsor(function () {});
-    var implicitB = domain0.sponsor(function () {});
-    var remote1 = domain1.sponsor(remote1Beh);
+    var actor = domain0.sponsor(function () {});
+    var remote = domain1.sponsor(remoteBeh);
 
-    var remote1Marshalled = domain1.localToRemote(remote1);
-    domain0.remoteSend(remote1Marshalled, [implicitA, implicitB]);
+    var remoteMarshalled = domain1.localToRemote(remote);
+    domain0.remoteSend(remoteMarshalled, actor);
+    domain0.remoteSend(remoteMarshalled, actor);
 
     test.ok(tracing.eventLoop());
     test.done();
