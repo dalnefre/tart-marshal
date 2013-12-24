@@ -36,7 +36,7 @@ var tart = require('tart-tracing');
 var test = module.exports = {};
 
 test['capability in a message is marshalled when crossing domains'] = function (test) {
-    test.expect(4);
+    test.expect(6);
     var tracing = tart.tracing();
     var sponsor = tracing.sponsor;
 
@@ -47,6 +47,8 @@ test['capability in a message is marshalled when crossing domains'] = function (
         test.equal(implicits.length, 2);
         test.notStrictEqual(implicits[0], implicitA);
         test.notStrictEqual(implicits[1], implicitB);
+        test.ok(typeof implicitA === 'function');
+        test.ok(typeof implicitB === 'function');
     };
 
     var implicitA = domain0.sponsor(function () {});
