@@ -58,13 +58,12 @@ marshal.domain = function domain(name, sponsor) {
         return remote;
     };
     var generateToken = function generateToken() {
-        var crypto = require('crypto');
-        var fodder = '' 
-            + (++sequence) 
-            + (new Date()).getTime() 
-            + process.hrtime();
-        var token = crypto.createHash('sha1').update(fodder).digest('base64');
-        return token;
+        try {
+            return require('crypto').randomBytes(20).toString('base64');
+        } catch (exception) {
+            // TODO: this can happen if we are out of entropy, deal with it
+            throw exception;
+        }
     };
     var encodeToken = function encodeToken(value) {
         console.log('encodeToken:', name, value);
