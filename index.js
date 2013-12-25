@@ -68,7 +68,7 @@ marshal.domain = function domain(name, sponsor) {
     };
     var encodeToken = function encodeToken(value) {
         console.log('encodeToken:', name, value);
-        return "=" + name + "?" + value;
+        return "=" + name + "#" + value;
     };
 
     var remoteToLocal = function remoteToLocal(remote) {
@@ -95,7 +95,7 @@ marshal.domain = function domain(name, sponsor) {
         var json = encode(message);
         dom.localSend(remote, json);
     };
-    var tokenPattern = /^=([^?]+)\?(.+)$/;
+    var tokenPattern = /^=([^?]+)#(.+)$/;
     var decodeToken = function decodeToken(token) {
         var result = tokenPattern.exec(token);
         return (result ? {
