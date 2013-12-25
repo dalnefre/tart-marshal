@@ -59,9 +59,13 @@ marshal.domain = function domain(name, sponsor) {
     };
     var generateToken = function generateToken() {
         try {
-            return require('crypto').randomBytes(20).toString('base64');
+            return require('crypto').randomBytes(42).toString('base64');
         } catch (exception) {
-            // TODO: this can happen if we are out of entropy, deal with it
+            // FIXME: if the system runs out of entropy, an exception will be
+            //        thrown; we need to define system behavior when we are out
+            //        of entropy, remembering that the entire OS crypto activity
+            //        (including any encrypted network traffic) will grind to
+            //        a halt while waiting for entropy to be available
             throw exception;
         }
     };
