@@ -47,7 +47,7 @@ test['tracing event loop runs to completion'] = function (test) {
 };
 
 test['ping/pong example from README'] = function (test) {
-    test.expect(4);
+    test.expect(5);
     var tracing = tart.tracing();
     var sponsor = tracing.sponsor;
     
@@ -56,8 +56,9 @@ test['ping/pong example from README'] = function (test) {
 
     var pingBeh = function pingBeh(message) {
         if (message.value === undefined) {
-            var pong = message.pong;
-            pong({ ping:this.self, pong:pong, value:'pinging' });
+            var _pong = message.pong;
+            test.notStrictEqual(_pong, pong);
+            _pong({ ping:this.self, pong:_pong, value:'pinging' });
         } else {
             test.equal(message.value, 'ponging');
             test.strictEqual(message.ping, ping);
@@ -77,6 +78,25 @@ test['ping/pong example from README'] = function (test) {
 //  var pongRemote = domain1.localToRemote(pong);
 
     domain1.remoteSend(pingRemote, { pong:pong });
+
+    test.ok(tracing.eventLoop());
+    test.done();
+};
+
+test['can send simple string across domains'] = function (test) {
+    test.expect(2);
+    var tracing = tart.tracing();
+    var sponsor = tracing.sponsor;
+
+    var domain0 = marshal.domain('ocap://zero.foo.com/', sponsor);
+    var domain1 = marshal.domain('ocap://one.foo.com/', sponsor);
+
+    var receiver = domain0.sponsor(function (message) {
+        test.equal(message, 'hello domains');
+    });
+
+    var remoteReceiver = domain0.localToRemote(receiver);
+    domain1.remoteSend(remoteReceiver, 'hello domains');
 
     test.ok(tracing.eventLoop());
     test.done();
