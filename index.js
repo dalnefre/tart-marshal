@@ -156,6 +156,7 @@ marshal.domain = function domain(name, sponsor) {
     };
 
     self.localToRemote = localToRemote;
+    self.remoteToLocal = remoteToLocal;
     self.remoteSend = remoteSend;
     self.localSend = localSend;
     return self;

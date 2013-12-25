@@ -59,8 +59,6 @@ var ping = domain0.sponsor(pingBeh);
 var pong = domain1.sponsor(pongBeh);
 
 var pingRemote = domain0.localToRemote(ping);
-console.log('pingRemote:', pingRemote);
-var pongRemote = domain1.localToRemote(pong);
-console.log('pongRemote:', pongRemote);
+var pingProxy = domain1.remoteToLocal(pingRemote);
 
-domain1.remoteSend(pingRemote, { pong:pong });
+pingProxy({ pong:pong });
