@@ -83,7 +83,7 @@ test['ping/pong example from README'] = function (test) {
     test.done();
 };
 
-test['ping/pong example using capability actors'] = function (test) {
+test['ping/pong example using capability behaviors'] = function (test) {
     test.expect(5);
     var tracing = tart.tracing();
     var sponsor = tracing.sponsor;
@@ -123,6 +123,53 @@ test['ping/pong example using capability actors'] = function (test) {
                 }
             });
         }
+    });
+    
+    test.ok(tracing.eventLoop());
+    test.done();
+};
+
+test['ping/pong example using capability actors'] = function (test) {
+    test.expect(5);
+    var tracing = tart.tracing();
+    var sponsor = tracing.sponsor;
+    
+    var domain0 = marshal.domain('ocap://zero.foo.com/', sponsor);
+    var domain1 = marshal.domain('ocap://one.bar.com/', sponsor);
+
+    var pingBeh = function pingBeh(message) {
+        if (message.value === undefined) {
+            var _pong = message.pong;
+            test.notStrictEqual(_pong, pong);
+            _pong({ ping:this.self, pong:_pong, value:'pinging' });
+        } else {
+            test.equal(message.value, 'ponging');
+            test.strictEqual(message.ping, ping);
+        }
+    };
+
+    var pongBeh = function pongBeh(message) {
+        var ping = message.ping;
+        ping({ ping:ping, pong:this.self, value:'ponging' });
+        test.equal(message.value, 'pinging');
+    };
+
+    var ping = domain0.sponsor(pingBeh);
+    var pong = domain1.sponsor(pongBeh);
+
+    var init1beh = function init1beh(pingRemote) {
+        domain1.proxyFactory({
+            remote: pingRemote,
+            customer: this.self
+        });
+        this.behavior = init2beh;
+    };
+    var init2beh = function init2beh(pingProxy) {
+        pingProxy({ pong: pong });
+    };
+    domain0.tokenFactory({
+        local: ping,
+        customer: sponsor(init1beh)
     });
     
     test.ok(tracing.eventLoop());
