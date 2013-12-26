@@ -75,10 +75,56 @@ test['ping/pong example from README'] = function (test) {
     var pong = domain1.sponsor(pongBeh);
 
     var pingRemote = domain0.localToRemote(ping);
-//  var pongRemote = domain1.localToRemote(pong);
+    var pingProxy = domain1.remoteToLocal(pingRemote);
 
-    domain1.remoteSend(pingRemote, { pong:pong });
+    pingProxy({ pong:pong });
 
+    test.ok(tracing.eventLoop());
+    test.done();
+};
+
+test['ping/pong example using capability actors'] = function (test) {
+    test.expect(5);
+    var tracing = tart.tracing();
+    var sponsor = tracing.sponsor;
+    
+    var domain0 = marshal.domain('ocap://zero.foo.com/', sponsor);
+    var domain1 = marshal.domain('ocap://one.bar.com/', sponsor);
+
+    var pingBeh = function pingBeh(message) {
+        if (message.value === undefined) {
+            var _pong = message.pong;
+            test.notStrictEqual(_pong, pong);
+            _pong({ ping:this.self, pong:_pong, value:'pinging' });
+        } else {
+            test.equal(message.value, 'ponging');
+            test.strictEqual(message.ping, ping);
+        }
+    };
+
+    var pongBeh = function pongBeh(message) {
+        var ping = message.ping;
+        ping({ ping:ping, pong:this.self, value:'ponging' });
+        test.equal(message.value, 'pinging');
+    };
+
+    var ping = domain0.sponsor(pingBeh);
+    var pong = domain1.sponsor(pongBeh);
+
+    var localToRemote0 = sponsor(domain0.localToRemoteBeh);
+    var remoteToLocal1 = sponsor(domain1.remoteToLocalBeh);
+    localToRemote0({
+        local: ping,
+        customer: function (remote) {
+            remoteToLocal1({
+                remote: remote,
+                customer: function (proxy) {
+                    proxy({ pong: pong });
+                }
+            });
+        }
+    });
+    
     test.ok(tracing.eventLoop());
     test.done();
 };
