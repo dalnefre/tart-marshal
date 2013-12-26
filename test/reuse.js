@@ -53,9 +53,18 @@ test['an already created remote reference should be reused for the same actor'] 
     var actor = domain0.sponsor(function () {});
     var remote = domain1.sponsor(remoteBeh);
 
-    var remoteMarshalled = domain1.localToRemote(remote);
-    domain0.remoteSend(remoteMarshalled, actor);
-    domain0.remoteSend(remoteMarshalled, actor);
+    domain1.tokenFactory({
+        local: remote,
+        customer: sponsor(function (remoteMarshalled) {
+            domain0.proxyFactory({
+                remote: remoteMarshalled,
+                customer: sponsor(function (remoteProxy) {
+                    remoteProxy(actor);
+                    remoteProxy(actor);
+                })
+            });
+        })
+    });
 
     test.ok(tracing.eventLoop());
     test.done();

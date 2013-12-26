@@ -154,19 +154,12 @@ marshal.domain = function domain(name, sponsor) {
         return value.slice(1);
     };
 
-    var localToRemoteBeh = function localToRemoteBeh(message) {
-        message.customer(localToRemote(message.local));
-    };
-    var remoteToLocalBeh = function remoteToLocalBeh(message) {
-        message.customer(remoteToLocal(message.remote));
-    };
-
+/*
     self.localToRemote = localToRemote;
     self.remoteToLocal = remoteToLocal;
+*/
     self.remoteSend = remoteSend;
     self.localSend = localSend;
-    self.localToRemoteBeh = localToRemoteBeh;
-    self.remoteToLocalBeh = remoteToLocalBeh;
     self.tokenFactory = sponsor(function tokenFactoryBeh(message) {
         message.customer(localToRemote(message.local));
     });

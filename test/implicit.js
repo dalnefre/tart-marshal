@@ -54,9 +54,18 @@ test['capability in a message is marshalled when crossing domains'] = function (
     var implicitA = domain0.sponsor(function () {});
     var implicitB = domain0.sponsor(function () {});
     var remote1 = domain1.sponsor(remote1Beh);
-
-    var remote1Marshalled = domain1.localToRemote(remote1);
-    domain0.remoteSend(remote1Marshalled, [implicitA, implicitB]);
+    
+    domain1.tokenFactory({
+        local: remote1,
+        customer: sponsor(function (remote1Marshalled) {
+            domain0.proxyFactory({
+                remote: remote1Marshalled,
+                customer: sponsor(function (remote1Proxy) {
+                    remote1Proxy([implicitA, implicitB]);
+                })
+            });
+        })
+    });
 
     test.ok(tracing.eventLoop());
     test.done();
