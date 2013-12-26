@@ -13,6 +13,7 @@
     "nodeunit": "0.8.1"
   },
   "dependencies": {
+    "tart-tracing": "0.1.5",
     "tart": "0.1.5"
   },
   "repository": {

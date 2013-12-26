@@ -12,14 +12,14 @@ To run the below example run:
 ```javascript
 "use strict";
 
-var tart = require('tart');
+var tart = require('tart-tracing');
 var marshal = require('../index.js');
 
-var sponsor0 = tart.minimal();
-var sponsor1 = tart.minimal();
+var tracing = tart.tracing();
+var sponsor = tracing.sponsor;
 
-var domain0 = marshal.domain('zero', sponsor0);
-var domain1 = marshal.domain('one', sponsor1);
+var domain0 = marshal.domain('zero', sponsor);
+var domain1 = marshal.domain('one', sponsor);
 
 var pingBeh = function pingBeh(message) {
     if (message.value === undefined) {
@@ -30,7 +30,6 @@ var pingBeh = function pingBeh(message) {
         console.log('(ping === message.ping)', (ping === message.ping));
     }
 };
-
 var pongBeh = function pongBeh(message) {
     var ping = message.ping;
     ping({ ping:ping, pong:this.self, value:"ponging" });
@@ -40,10 +39,27 @@ var pongBeh = function pongBeh(message) {
 var ping = domain0.sponsor(pingBeh);
 var pong = domain1.sponsor(pongBeh);
 
-var pingRemote = domain0.localToRemote(ping);
-var pingProxy = domain1.remoteToLocal(pingRemote);
+var init1beh = function init1beh(pingRemote) {
+    domain1.proxyFactory({
+        remote: pingRemote,
+        customer: this.self
+    });
+    this.behavior = init2beh;
+};
+var init2beh = function init2beh(pingProxy) {
+    pingProxy({ pong: pong });
+};
 
-pingProxy({ pong:pong });
+domain0.tokenFactory({
+    local: ping,
+    customer: sponsor(init1beh)
+});
+
+tracing.eventLoop({
+    log: function(effect) {
+        console.dir(effect);
+    }
+});
 
 ```
 
