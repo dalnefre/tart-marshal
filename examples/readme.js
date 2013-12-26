@@ -57,20 +57,19 @@ var pongBeh = function pongBeh(message) {
 var ping = domain0.sponsor(pingBeh);
 var pong = domain1.sponsor(pongBeh);
 
-var init1beh = function init1beh(pingRemote) {
+var bootstrapBeh = function (pingRemote) {
     domain1.proxyFactory({
         remote: pingRemote,
         customer: this.self
     });
-    this.behavior = init2beh;
-};
-var init2beh = function init2beh(pingProxy) {
-    pingProxy({ pong: pong });
+    this.behavior = function (pingProxy) {
+        pingProxy({ pong: pong });
+    };
 };
 
 domain0.tokenFactory({
     local: ping,
-    customer: sponsor(init1beh)
+    customer: sponsor(bootstrapBeh)
 });
 
 tracing.eventLoop({

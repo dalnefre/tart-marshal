@@ -107,9 +107,14 @@ test['can send simple string across domains'] = function (test) {
     
     domain0.tokenFactory({
         local: receiver,
-        customer: function (remoteReceiver) {
-            domain1.remoteSend(remoteReceiver, 'hello domains');
-        }
+        customer: sponsor(function (remoteReceiver) {
+            domain1.proxyFactory({
+                remote: remoteReceiver,
+                customer: sponsor(function (remoteProxy) {
+                    remoteProxy('hello domains');
+                })
+            });
+        })
     });
 
     test.ok(tracing.eventLoop());
