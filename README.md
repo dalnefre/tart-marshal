@@ -7,7 +7,7 @@ Send messages between memory domains (tart module)
 The `tart-marshal` module provides a mechanism 
 for sending messages between memory domains.
 This involves _marshalling_ each message,
-converting local actor references into unforgeable _tokens_ 
+converting local actor references into unguessable _tokens_ 
 for transmission across a network.
 ```
 domain0:                          domain1:
@@ -22,16 +22,19 @@ domain0:                          domain1:
 +----------------+                +----------------+
 ```
 The process begins by asking a _domain_ 
-to generate a _token_ representing a local actor.
+to generate a _token_ representing a remote reference to a local actor.
 The _token_ is then used to create a _proxy_ in another domain.
 The _proxy_ is an actor, local to another domain, 
-the forwards messages across the network
-to the domain which generated the _token_.
-On receipt of the _marshalled_ message,
-the destination domain replaces any _tokens_
+that _mashals_ and forwards messages across a network
+to a remote actor in the _domain_ which generated the _token_.
+
+On receipt of a _marshalled_ message,
+the destination _domain_ replaces any _tokens_
 with references to local actors,
 and delivers the message to the target actor
 (identified by the _token_ used to create the _proxy_).
+Unrecognized _tokens_ are replaced by
+new local _proxies_ for remote references.
 
 ## Usage
 
