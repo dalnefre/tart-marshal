@@ -11,15 +11,15 @@ converting local actor references into unguessable _tokens_
 for transmission across a network.
 ```
 domain0:                          domain1:
-+----------------+                +----------------+
-|                | ping           | ping           |
-|    +--------- ( token [ ...... [ proxy ) <--+    |
-|    v           |                |           |    |
-| ( ping )       |                |       ( pong ) |
-|    |      pong |           pong |           ^    |
-|    +--> ( proxy ] ...... ] token ) ---------+    |
-|                |                |                |
-+----------------+                +----------------+
++----------------+                 +----------------+
+|                | ping            | ping           |
+|    +--------- ( token [ . . . . [ proxy ) <--+    |
+|    v           |                 |           |    |
+| ( ping )       |                 |       ( pong ) |
+|    |      pong |            pong |           ^    |
+|    +--> ( proxy ] . . . . ] token ) ---------+    |
+|                |                 |                |
++----------------+                 +----------------+
 ```
 The process begins by asking a _domain_ 
 to generate a _token_ representing a remote reference to a local actor.
@@ -98,3 +98,46 @@ tracing.eventLoop({
 ## Tests
 
     npm test
+
+## Documentation
+
+**Public API**
+
+  * [marshal.domain(name, sponsor)](#marshaldomainnamesponsor)
+  * [domain.tokenFactory](#domaintokenFactory)
+  * [domain.proxyFactory](#domainproxyFactory)
+
+### marshal.domain(name, sponsor)
+
+  * `name`: _String_ unique identifier for this domain (e.g: FQDN).
+  * `sponsor`: _Function_ `function (behavior) {}` 
+      Capability used to create new actors.
+  * Return: _Object_ `domain` capabilities.
+    * `name`: _String_ As specified on creation.
+    * `sponsor`: _Function_ As specified on creation.
+    * `tokenFactory`: _Function_ `function (message) {}` 
+        Actor used to make _tokens_ from local actor references.
+    * `proxyFactory`: _Function_ `function (message) {}` 
+        Actor used to make _proxies_ from remote actor _tokens_.
+
+Creates a new _domain_ and returns actors used to make _tokens_ and _proxies_.
+
+### domain.tokenFactory(message)
+
+  * `message`: _Object_ Asynchronous message to actor.
+    * `local`: _Function_ `function (message) {}` local actor reference.
+    * `customer`: _Function_ `function (message) {}` actor to receive the _token_.
+
+Sends `customer` a _token_ representing the `local` actor.
+Multiple request with the same `local` always produce the same _token_.
+
+### domain.proxyFactory(message)
+
+  * `message`: _Object_ Asynchronous message to actor.
+    * `remote`: _String_ remote actor reference _token_.
+    * `customer`: _Function_ `function (message) {}` actor to receive the _proxy_.
+
+Sends `customer` a _proxy_ that will forward messages to
+the `remote` actor represented by the _token_.
+The _proxy_ is a local actor created by `domain.sponsor()`.
+Multiple request with the same `remote` always produce the same _proxy_.
