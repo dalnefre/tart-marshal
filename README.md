@@ -72,9 +72,9 @@ var pongBeh = function pongBeh(message) {
 var ping = domain0.sponsor(pingBeh);
 var pong = domain1.sponsor(pongBeh);
 
-var bootstrapBeh = function (pingRemote) {
+var bootstrapBeh = function (pingToken) {
     domain1.proxyFactory({
-        remote: pingRemote,
+        remote: pingToken,
         customer: this.self
     });
     this.behavior = function (pingProxy) {
