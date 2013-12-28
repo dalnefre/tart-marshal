@@ -75,6 +75,7 @@ var bootstrapBeh = function bootstrapBeh(pingToken) {
 
 var listenAcks = 0;
 var bothAck = sponsor(function bothAckBeh(message) {
+    console.log('tcp server listening', message);
     listenAcks++;
     if (listenAcks == 2) {
         // both servers are listening, bootstrap and start ping-pong
