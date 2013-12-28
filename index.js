@@ -34,20 +34,45 @@ var marshal = module.exports;
 
 var routingTable = {};  // simulated network routing
 
-marshal.domain = function domain(name, sponsor) {
+var encodeToken = function encodeToken(domain, capability) {
+    return "=" + domain + "#" + capability;
+};
+var tokenPattern = /^=([^?]+)#(.+)$/;
+var decodeToken = function decodeToken(token) {
+    var result = tokenPattern.exec(token);
+    return (result ? {
+        domain: result[1],
+        capability: result[2],
+        token: result[0]
+    } : undefined);
+};
+
+marshal.decodeToken = decodeToken;
+
+marshal.domain = function domain(name, sponsor, transport) {
     var self = {};
     var tokenMap = {};
 
     self.name = name;
     self.sponsor = sponsor;
+    
+    transport = transport || function transport(message) {
+        // { address:<token>, content:<json> }
+        var parsed = decodeToken(message.address);
+        if (!parsed) { throw Error('Bad address format: ' + message.address); }
+        var route = routingTable[parsed.domain];
+        if (!route) { throw Error('Unknown domain: ' + parsed.domain); }
+        route(message);
+    };
 
     var routerBeh = function routerBeh(message) {
-        // { address:<remote>, content:<json> }
+        // { address:<token>, content:<json> }
         var local = tokenMap[message.address];
         if (!local) { throw Error('Unknown address: ' + message.address); }
         local(decode(message.content));
     };
-    routingTable[name] = sponsor(routerBeh);
+    self.receptionist = sponsor(routerBeh);
+    routingTable[name] = self.receptionist;
 
     var localToRemote = function localToRemote(local) {
         var remote;
@@ -57,7 +82,7 @@ marshal.domain = function domain(name, sponsor) {
             }
         }
         /* not found, create a new entry */
-        remote = encodeToken(generateToken());
+        remote = encodeToken(name, generateToken());
         tokenMap[remote] = local;
         return remote;
     };
@@ -73,9 +98,6 @@ marshal.domain = function domain(name, sponsor) {
             throw exception;
         }
     };
-    var encodeToken = function encodeToken(value) {
-        return "=" + name + "#" + value;
-    };
 
     var remoteToLocal = function remoteToLocal(remote) {
         var local = tokenMap[remote];
@@ -86,25 +108,12 @@ marshal.domain = function domain(name, sponsor) {
         return local;
     };
     var proxy = function proxy(remote) {
-        var addr = decodeToken(remote);
-        if (!addr) { throw Error('Bad address format: ' + remote); }
-        var route = routingTable[addr.name];
-        if (!route) { throw Error('Unknown domain: ' + addr.name); }
         return function proxyBeh(message) {
-            route({
+            transport({
                 address: remote, 
                 content: encode(message)
             });
         };
-    };
-    var tokenPattern = /^=([^?]+)#(.+)$/;
-    var decodeToken = function decodeToken(token) {
-        var result = tokenPattern.exec(token);
-        return (result ? {
-            name: result[1],
-            value: result[2],
-            token: result[0]
-        } : undefined);
     };
 
     var encode = function encode(message) {
