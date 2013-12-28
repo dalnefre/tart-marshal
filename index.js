@@ -35,9 +35,9 @@ var marshal = module.exports;
 var routingTable = {};  // simulated network routing
 
 var encodeToken = function encodeToken(domain, capability) {
-    return "=" + domain + "#" + capability;
+    return domain + "#" + capability;
 };
-var tokenPattern = /^=([^?]+)#(.+)$/;
+var tokenPattern = /^([^?]+)#(.+)$/;
 var decodeToken = function decodeToken(token) {
     var result = tokenPattern.exec(token);
     return (result ? {
@@ -141,16 +141,16 @@ marshal.domain = function domain(name, sponsor, transport) {
     };
     var reviver = function reviver(key, value) {
         if (typeof value === 'string') {
-            if (isRemote(value)) {
-                return remoteToLocal(value);
-            } else {
+            if (isString(value)) {
                 return decodeString(value);
+            } else {
+                return remoteToLocal(value);
             }
         }
         return value;
     };
-    var isRemote = function isRemote(value) {
-        return (value.charAt(0) === "=");
+    var isString = function isRemote(value) {
+        return (value.charAt(0) === "'");
     };
     var decodeString = function decodeString(value) {
         return value.slice(1);

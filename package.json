@@ -5,15 +5,17 @@
   "scripts": {
     "inject-examples": "node scripts/injectExamples.js",
     "readme": "node examples/readme.js",
+    "tcp": "node examples/tcp.js",
     "test": "node scripts/test.js"
   },
   "main": "index.js",
   "devDependencies": {
     "tart-tracing": "0.1.5",
-    "nodeunit": "0.8.1"
+    "nodeunit": "0.8.2"
   },
   "dependencies": {
     "tart-tracing": "0.1.5",
+    "tart-transport-tcp": "0.1.0",
     "tart": "0.1.5"
   },
   "repository": {
