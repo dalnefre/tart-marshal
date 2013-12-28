@@ -149,7 +149,7 @@ marshal.domain = function domain(name, sponsor, transport) {
         }
         return value;
     };
-    var isString = function isRemote(value) {
+    var isString = function isString(value) {
         return (value.charAt(0) === "'");
     };
     var decodeString = function decodeString(value) {
