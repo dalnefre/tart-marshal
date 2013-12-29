@@ -131,7 +131,7 @@ marshal.domain = function domain(name, sponsor, transport) {
         return value;
     };
     var encodeString = function encodeString(value) {
-        return "'" + value;
+        return ":" + value;
     };
 
     var decode = function decode(json) {
@@ -150,7 +150,7 @@ marshal.domain = function domain(name, sponsor, transport) {
         return value;
     };
     var isString = function isString(value) {
-        return (value.charAt(0) === "'");
+        return (value.charAt(0) === ":");
     };
     var decodeString = function decodeString(value) {
         return value.slice(1);
