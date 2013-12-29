@@ -34,21 +34,6 @@ var marshal = module.exports;
 
 var routingTable = {};  // simulated network routing
 
-var encodeToken = function encodeToken(domain, capability) {
-    return domain + "#" + capability;
-};
-var tokenPattern = /^([^?]+)#(.+)$/;
-var decodeToken = function decodeToken(token) {
-    var result = tokenPattern.exec(token);
-    return (result ? {
-        domain: result[1],
-        capability: result[2],
-        token: result[0]
-    } : undefined);
-};
-
-marshal.decodeToken = decodeToken;
-
 marshal.domain = function domain(name, sponsor, transport) {
     var self = {};
     var tokenMap = {};
@@ -58,10 +43,12 @@ marshal.domain = function domain(name, sponsor, transport) {
     
     transport = transport || function transport(message) {
         // { address:<token>, content:<json> }
-        var parsed = decodeToken(message.address);
-        if (!parsed) { throw Error('Bad address format: ' + message.address); }
-        var route = routingTable[parsed.domain];
-        if (!route) { throw Error('Unknown domain: ' + parsed.domain); }
+        var remote = message.address;
+        var parsed = remote.split('#');
+        if (parsed.length != 2) { throw Error('Bad address format: ' + remote); }
+        var domain = parsed[0];
+        var route = routingTable[domain];
+        if (!route) { throw Error('Unknown domain: ' + domain); }
         route(message);
     };
 
@@ -82,11 +69,11 @@ marshal.domain = function domain(name, sponsor, transport) {
             }
         }
         /* not found, create a new entry */
-        remote = encodeToken(name, generateToken());
+        remote = name + '#' + generateCapability();
         tokenMap[remote] = local;
         return remote;
     };
-    var generateToken = function generateToken() {
+    var generateCapability = function generateCapability() {
         try {
             return require('crypto').randomBytes(42).toString('base64');
         } catch (exception) {
