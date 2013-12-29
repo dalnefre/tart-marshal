@@ -7,12 +7,14 @@
     "readme": "node examples/readme.js",
     "tcp": "node examples/tcp.js",
     "test": "node scripts/test.js",
+    "tls": "node examples/tls.js",
     "udp": "node examples/udp.js"
   },
   "main": "index.js",
   "devDependencies": {
     "tart-tracing": "0.1.5",
     "tart-transport-tcp": "0.1.0",
+    "tart-transport-tls": "0.1.1",
     "tart-transport-udp": "0.1.0",
     "nodeunit": "0.8.2"
   },
