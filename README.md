@@ -138,7 +138,7 @@ based on the _domain_ portion of the `address`.
   * `sponsor`: _Function_ `function (behavior) {}` 
       Capability used to create new actors.
   * `transport`: _Function_ `function (message) {}` 
-      Actor used to route messages to remote _domains_.
+      Actor used to route messages (in _transport_ format) to remote domains.
   * Return: _Object_ `domain` capabilities.
     * `name`: _String_ As specified on creation.
     * `sponsor`: _Function_ As specified on creation.
@@ -147,6 +147,9 @@ based on the _domain_ portion of the `address`.
         Actor used to make _tokens_ from local actor references.
     * `proxyFactory`: _Function_ `function (message) {}` 
         Actor used to make _proxies_ from remote actor _tokens_.
+    * `receptionist`: _Function_ `function (message) {}`
+        Actor used to decode messages (in _transport_ format) 
+        and deliver them to actors local to the domain.
 
 Creates a new _domain_ and returns actors used to make _tokens_ and _proxies_.
 
