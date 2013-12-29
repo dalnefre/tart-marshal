@@ -36,8 +36,11 @@ var marshal = require('../index.js');
 var tracing = tart.tracing();
 var sponsor = tracing.sponsor;
 
-var domain0 = marshal.domain('ocap:zero', sponsor);
-var domain1 = marshal.domain('ocap:one', sponsor);
+var network = marshal.router(sponsor);
+var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
+network.routingTable['ocap:zero'] = domain0.receptionist;
+var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
+network.routingTable['ocap:one'] = domain1.receptionist;
 
 var pingBeh = function pingBeh(message) {
     if (message.value === undefined) {

@@ -32,7 +32,30 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 var marshal = module.exports;
 
-var routingTable = {};  // simulated network routing
+marshal.router = function router(sponsor, defaultRoute) {  // table-based routing transport
+    var self = {};
+
+    self.routingTable = {};  // mapping from domains to transports
+ 
+    self.defaultRoute = defaultRoute || sponsor(function(message) {
+        throw Error('No route for ' + message.address);
+    });
+
+    self.transport = sponsor(function routerBeh(message) {
+        // { address:<token>, content:<json> }
+        var remote = message.address;
+        var parsed = remote.split('#');
+        if (parsed.length != 2) { throw Error('Bad address format: ' + remote); }
+        var domain = parsed[0];
+        var route = self.routingTable[domain];
+        if (!route) {
+            route = defaultRoute;
+        }
+        route(message);
+    });
+
+    return self;
+};
 
 marshal.domain = function domain(name, sponsor, transport) {
     var self = {};
@@ -40,26 +63,14 @@ marshal.domain = function domain(name, sponsor, transport) {
 
     self.name = name;
     self.sponsor = sponsor;
+    self.transport = transport;
     
-    transport = transport || function transport(message) {
-        // { address:<token>, content:<json> }
-        var remote = message.address;
-        var parsed = remote.split('#');
-        if (parsed.length != 2) { throw Error('Bad address format: ' + remote); }
-        var domain = parsed[0];
-        var route = routingTable[domain];
-        if (!route) { throw Error('Unknown domain: ' + domain); }
-        route(message);
-    };
-
-    var routerBeh = function routerBeh(message) {
+    self.receptionist = sponsor(function receptionistBeh(message) {
         // { address:<token>, content:<json> }
         var local = tokenMap[message.address];
         if (!local) { throw Error('Unknown address: ' + message.address); }
         local(decode(message.content));
-    };
-    self.receptionist = sponsor(routerBeh);
-    routingTable[name] = self.receptionist;
+    });
 
     var localToRemote = function localToRemote(local) {
         var remote;

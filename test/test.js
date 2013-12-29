@@ -50,9 +50,12 @@ test['ping/pong example using capability actors'] = function (test) {
     test.expect(5);
     var tracing = tart.tracing();
     var sponsor = tracing.sponsor;
-    
-    var domain0 = marshal.domain('ocap://zero.foo.com/', sponsor);
-    var domain1 = marshal.domain('ocap://one.bar.com/', sponsor);
+
+    var network = marshal.router(sponsor);
+    var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
+    network.routingTable['ocap:zero'] = domain0.receptionist;
+    var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
+    network.routingTable['ocap:one'] = domain1.receptionist;
 
     var pingBeh = function pingBeh(message) {
         if (message.value === undefined) {
@@ -98,8 +101,11 @@ test['can send simple string across domains'] = function (test) {
     var tracing = tart.tracing();
     var sponsor = tracing.sponsor;
 
-    var domain0 = marshal.domain('ocap://zero.foo.com/', sponsor);
-    var domain1 = marshal.domain('ocap://one.foo.com/', sponsor);
+    var network = marshal.router(sponsor);
+    var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
+    network.routingTable['ocap:zero'] = domain0.receptionist;
+    var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
+    network.routingTable['ocap:one'] = domain1.receptionist;
 
     var receiver = domain0.sponsor(function (message) {
         test.equal(message, 'hello domains');

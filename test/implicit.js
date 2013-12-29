@@ -40,8 +40,11 @@ test['capability in a message is marshalled when crossing domains'] = function (
     var tracing = tart.tracing();
     var sponsor = tracing.sponsor;
 
-    var domain0 = marshal.domain('ocap://zero.foo.com/', sponsor);
-    var domain1 = marshal.domain('ocap://one.foo.com/', sponsor);
+    var network = marshal.router(sponsor);
+    var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
+    network.routingTable['ocap:zero'] = domain0.receptionist;
+    var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
+    network.routingTable['ocap:one'] = domain1.receptionist;
 
     var remote1Beh = function remote1Beh(implicits) {
         test.equal(implicits.length, 2);

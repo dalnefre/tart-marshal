@@ -51,8 +51,11 @@ var marshal = require('../index.js');
 var tracing = tart.tracing();
 var sponsor = tracing.sponsor;
 
-var domain0 = marshal.domain('ocap:zero', sponsor);
-var domain1 = marshal.domain('ocap:one', sponsor);
+var network = marshal.router(sponsor);
+var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
+network.routingTable['ocap:zero'] = domain0.receptionist;
+var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
+network.routingTable['ocap:one'] = domain1.receptionist;
 
 var pingBeh = function pingBeh(message) {
     if (message.value === undefined) {
@@ -103,18 +106,43 @@ tracing.eventLoop({
 
 **Public API**
 
-  * [marshal.domain(name, sponsor)](#marshaldomainnamesponsor)
+  * [marshal.router(sponsor, defaultRoute)](#marshalroutersponsordefaultRoute)
+  * [marshal.domain(name, sponsor, transport)](#marshaldomainnamesponsortransport)
   * [domain.tokenFactory](#domaintokenFactory)
   * [domain.proxyFactory](#domainproxyFactory)
 
-### marshal.domain(name, sponsor)
+### marshal.router(sponsor, defaultRoute)
 
-  * `name`: _String_ unique identifier for this domain (e.g: FQDN).
   * `sponsor`: _Function_ `function (behavior) {}` 
       Capability used to create new actors.
+  * `defaultRoute`: _Function_ `function (message) {}` (default _throws_)
+      Actor used to make route messages to unrecognized domains.
+  * Return: _Object_ `router` capabilities.
+    * `sponsor`: _Function_ As specified on creation.
+    * `defaultRoute`: _Function_ As specified on creation.
+    * `transport`: _Function_ `function (message) {}` 
+        Actor used to route messages to remote _domains_.
+    * `routingTable`: _Object_ (default `{}`) 
+        Mapping from _domains_ to _transports_.
+
+Creates a new _router_ and returns a control object.  
+The protocol for all _transports_ consist of messages with the format 
+`{ address:<token>, message:<json> }`.
+The `router.transport` actor uses `router.routingTable` 
+to look up routes (transport actors) 
+based on the _domain_ portion of the `address`.
+
+### marshal.domain(name, sponsor, transport)
+
+  * `name`: _String_ URI (without fragment) for this domain.
+  * `sponsor`: _Function_ `function (behavior) {}` 
+      Capability used to create new actors.
+  * `transport`: _Function_ `function (message) {}` 
+      Actor used to route messages to remote _domains_.
   * Return: _Object_ `domain` capabilities.
     * `name`: _String_ As specified on creation.
     * `sponsor`: _Function_ As specified on creation.
+    * `transport`: _Function_ As specified on creation.
     * `tokenFactory`: _Function_ `function (message) {}` 
         Actor used to make _tokens_ from local actor references.
     * `proxyFactory`: _Function_ `function (message) {}` 
