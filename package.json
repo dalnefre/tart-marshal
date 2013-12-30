@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Send messages between memory domains (tart module)",
   "scripts": {
+    "all-examples": "npm run http && npm run https && npm run tcp && npm run tls && npm run udp",
     "http": "node examples/http.js",
     "https": "node examples/https.js",
     "inject-examples": "node scripts/injectExamples.js",
