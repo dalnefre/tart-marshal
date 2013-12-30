@@ -102,6 +102,10 @@ tracing.eventLoop({
 
     npm test
 
+## Examples
+
+    npm run all-examples
+
 ## Documentation
 
 **Public API**

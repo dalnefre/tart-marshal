@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "Send messages between memory domains (tart module)",
   "scripts": {
+    "all-examples": "npm run http && npm run https && npm run tcp && npm run tls && npm run udp",
     "http": "node examples/http.js",
+    "https": "node examples/https.js",
     "inject-examples": "node scripts/injectExamples.js",
     "readme": "node examples/readme.js",
     "tcp": "node examples/tcp.js",
@@ -15,6 +17,7 @@
   "devDependencies": {
     "tart-tracing": "0.1.5",
     "tart-transport-http": "0.1.0",
+    "tart-transport-https": "0.1.0",
     "tart-transport-tcp": "0.1.0",
     "tart-transport-tls": "0.1.1",
     "tart-transport-udp": "0.1.0",
