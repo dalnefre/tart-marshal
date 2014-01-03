@@ -37,16 +37,8 @@ var tracing = tart.tracing();
 var sponsor = tracing.sponsor;
 
 var network = marshal.router(sponsor);
-/**/
 var domain0 = network.domain('ocap:zero');
 var domain1 = network.domain('ocap:one');
-/**/
-/*
-var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
-network.routingTable['ocap:zero'] = domain0.receptionist;
-var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
-network.routingTable['ocap:one'] = domain1.receptionist;
-*/
 
 var pingBeh = function pingBeh(message) {
     if (message.value === undefined) {
@@ -65,32 +57,11 @@ var pongBeh = function pongBeh(message) {
 
 var ping = domain0.sponsor(pingBeh);
 var pong = domain1.sponsor(pongBeh);
-/**/
+
 var pingToken = domain0.localToRemote(ping);
 var pingProxy = domain1.remoteToLocal(pingToken);
 
 pingProxy({ pong: pong });  // send message between domains
-/**/
-/*
-var d0tf = domain0.sponsor(
-	marshal.applyBeh(domain0, domain0.localToRemote));
-var d1pf = domain1.sponsor(
-	marshal.applyBeh(domain1, domain1.remoteToLocal));
-var bootstrapBeh = function (pingToken) {
-    d1pf({
-        arguments: [pingToken],
-        customer: this.self
-    });
-    this.behavior = function (pingProxy) {
-        pingProxy({ pong: pong });
-    };
-};
-
-d0tf({
-    arguments: [ping],
-    customer: sponsor(bootstrapBeh)
-});
-*/
 
 tracing.eventLoop({
     log: function(effect) {
