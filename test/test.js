@@ -52,10 +52,8 @@ test['ping/pong example from README'] = function (test) {
     var sponsor = tracing.sponsor;
 
     var network = marshal.router(sponsor);
-    var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
-    network.routingTable['ocap:zero'] = domain0.receptionist;
-    var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
-    network.routingTable['ocap:one'] = domain1.receptionist;
+    var domain0 = network.domain('ocap:zero');
+    var domain1 = network.domain('ocap:one');
 
     var pingBeh = function pingBeh(message) {
         if (message.value === undefined) {
@@ -92,10 +90,8 @@ test['can send simple string across domains'] = function (test) {
     var sponsor = tracing.sponsor;
 
     var network = marshal.router(sponsor);
-    var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
-    network.routingTable['ocap:zero'] = domain0.receptionist;
-    var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
-    network.routingTable['ocap:one'] = domain1.receptionist;
+    var domain0 = network.domain('ocap:zero');
+    var domain1 = network.domain('ocap:one');
 
     var receiver = domain0.sponsor(function (message) {
         test.equal(message, 'hello domains');

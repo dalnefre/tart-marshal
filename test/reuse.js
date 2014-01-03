@@ -41,10 +41,8 @@ test['an already created remote reference should be reused for the same actor'] 
     var sponsor = tracing.sponsor;
 
     var network = marshal.router(sponsor);
-    var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
-    network.routingTable['ocap:zero'] = domain0.receptionist;
-    var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
-    network.routingTable['ocap:one'] = domain1.receptionist;
+    var domain0 = network.domain('ocap:zero');
+    var domain1 = network.domain('ocap:one');
 
     var remoteBeh = function remoteBeh(firstDelivery) {
         this.behavior = function (secondDelivery) {
