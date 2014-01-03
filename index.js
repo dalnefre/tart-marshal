@@ -35,11 +35,12 @@ var marshal = module.exports;
 marshal.router = function router(sponsor, defaultRoute) {  // table-based routing transport
     var self = {};
 
-    self.routingTable = {};  // mapping from domains to transports
- 
+    self.sponsor = sponsor;
     self.defaultRoute = defaultRoute || sponsor(function(message) {
         throw Error('No route for ' + message.address);
     });
+
+    self.routingTable = {};  // mapping from domains to transports
 
     self.transport = sponsor(function routerBeh(message) {
         // { address:<token>, content:<json> }
@@ -53,6 +54,13 @@ marshal.router = function router(sponsor, defaultRoute) {  // table-based routin
         }
         route(message);
     });
+
+    self.domain = function domain(name, sponsor) {
+        sponsor = sponsor || self.sponsor;
+        var dom = marshal.domain(name, sponsor, self.transport);
+        self.routingTable[name] = dom.receptionist;
+        return dom;
+    };
 
     return self;
 };
