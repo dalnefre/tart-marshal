@@ -21,11 +21,11 @@
     "tart-transport-tcp": "0.1.0",
     "tart-transport-tls": "0.1.1",
     "tart-transport-udp": "0.1.0",
-    "nodeunit": "0.8.2"
+    "nodeunit": "0.8.x"
   },
   "dependencies": {
     "tart-tracing": "0.1.5",
-    "tart": "0.1.5"
+    "tart": "0.2.x"
   },
   "repository": {
     "type": "git",
