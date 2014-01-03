@@ -74,30 +74,11 @@ var pongBeh = function pongBeh(message) {
 
 var ping = domain0.sponsor(pingBeh);
 var pong = domain1.sponsor(pongBeh);
-/**/
+
 var pingToken = domain0.localToRemote(ping);
 var pingProxy = domain1.remoteToLocal(pingToken);
 
 pingProxy({ pong: pong });  // send message between domains
-/**/
-/*
-var d0tf = domain0.tokenFactory;
-var d1pf = domain1.proxyFactory;
-var bootstrapBeh = function (pingToken) {
-    d1pf({
-        remote: pingToken,
-        customer: this.self
-    });
-    this.behavior = function (pingProxy) {
-        pingProxy({ pong: pong });
-    };
-};
-
-d0tf({
-    local: ping,
-    customer: sponsor(bootstrapBeh)
-});
-*/
 
 tracing.eventLoop({
     log: function(effect) {
@@ -123,8 +104,6 @@ tracing.eventLoop({
   * [marshal.domain(name, sponsor, transport)](#marshaldomainnamesponsortransport)
   * [domain.localToRemote(actor)](#domainlocalToRemoteactor)
   * [domain.remoteToLocal(token)](#domainremoteToLocaltoken)
-  * [domain.tokenFactory](#domaintokenFactory)  **DEPRECATED**
-  * [domain.proxyFactory](#domainproxyFactory)  **DEPRECATED**
 
 ### marshal.router(sponsor, defaultRoute)
 
@@ -158,10 +137,6 @@ based on the _domain_ portion of the `address`.
     * `name`: _String_ As specified on creation.
     * `sponsor`: _Function_ As specified on creation.
     * `transport`: _Function_ As specified on creation.
-    * `tokenFactory`: _Function_ `function (message) {}` 
-        Actor used to make _tokens_ from local actor references.
-    * `proxyFactory`: _Function_ `function (message) {}` 
-        Actor used to make _proxies_ from remote actor _tokens_.
     * `localToRemote`: _Function_ `function (actor) {}` 
         Capability used to make _tokens_ from local actor references.
     * `remoteToLocal`: _Function_ `function (token) {}` 
@@ -189,23 +164,3 @@ Return a _proxy_ that will forward messages to
 the remote actor represented by the `token`.
 The _proxy_ is a local actor created by `domain.sponsor()`.
 Multiple request with the same `token` always return the same _proxy_.
-
-### domain.tokenFactory(message)  **DEPRECATED**
-
-  * `message`: _Object_ Asynchronous message to actor.
-    * `local`: _Function_ `function (message) {}` local actor reference.
-    * `customer`: _Function_ `function (message) {}` actor to receive the _token_.
-
-Sends `customer` a _token_ representing the `local` actor.
-Multiple request with the same `local` always produce the same _token_.
-
-### domain.proxyFactory(message)  **DEPRECATED**
-
-  * `message`: _Object_ Asynchronous message to actor.
-    * `remote`: _String_ remote actor reference _token_.
-    * `customer`: _Function_ `function (message) {}` actor to receive the _proxy_.
-
-Sends `customer` a _proxy_ that will forward messages to
-the `remote` actor represented by the _token_.
-The _proxy_ is a local actor created by `domain.sponsor()`.
-Multiple request with the same `remote` always produce the same _proxy_.

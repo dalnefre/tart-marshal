@@ -66,24 +66,6 @@ var pingProxy = domain1.remoteToLocal(pingToken);
 pingProxy({ pong: pong });  // send message between domains
 /**/
 /*
-var d0tf = domain0.tokenFactory;
-var d1pf = domain1.proxyFactory;
-var bootstrapBeh = function (pingToken) {
-    d1pf({
-        remote: pingToken,
-        customer: this.self
-    });
-    this.behavior = function (pingProxy) {
-        pingProxy({ pong: pong });
-    };
-};
-
-d0tf({
-    local: ping,
-    customer: sponsor(bootstrapBeh)
-});
-*/
-/*
 var d0tf = domain0.sponsor(
 	marshal.applyBeh(domain0, domain0.localToRemote));
 var d1pf = domain1.sponsor(

@@ -156,12 +156,6 @@ marshal.domain = function domain(name, sponsor, transport) {
 
     self.localToRemote = localToRemote;
     self.remoteToLocal = remoteToLocal;
-    self.tokenFactory = sponsor(function tokenFactoryBeh(message) {
-        message.customer(localToRemote(message.local));
-    });
-    self.proxyFactory = sponsor(function proxyFactoryBeh(message) {
-        message.customer(remoteToLocal(message.remote));
-    });
     return self;
 };
 
