@@ -46,7 +46,7 @@ test['tracing event loop runs to completion'] = function (test) {
     test.done();
 };
 
-test['ping/pong example using capability actors'] = function (test) {
+test['ping/pong example from README'] = function (test) {
     test.expect(5);
     var tracing = tart.tracing();
     var sponsor = tracing.sponsor;
@@ -77,21 +77,11 @@ test['ping/pong example using capability actors'] = function (test) {
     var ping = domain0.sponsor(pingBeh);
     var pong = domain1.sponsor(pongBeh);
 
-    var init1beh = function init1beh(pingRemote) {
-        domain1.proxyFactory({
-            remote: pingRemote,
-            customer: this.self
-        });
-        this.behavior = init2beh;
-    };
-    var init2beh = function init2beh(pingProxy) {
-        pingProxy({ pong: pong });
-    };
-    domain0.tokenFactory({
-        local: ping,
-        customer: sponsor(init1beh)
-    });
-    
+    var pingRemote = domain0.localToRemote(ping);
+    var pingProxy = domain1.remoteToLocal(pingRemote);
+
+    pingProxy({ pong: pong });  // send message between domains
+
     test.ok(tracing.eventLoop());
     test.done();
 };
@@ -110,18 +100,11 @@ test['can send simple string across domains'] = function (test) {
     var receiver = domain0.sponsor(function (message) {
         test.equal(message, 'hello domains');
     });
-    
-    domain0.tokenFactory({
-        local: receiver,
-        customer: sponsor(function (remoteReceiver) {
-            domain1.proxyFactory({
-                remote: remoteReceiver,
-                customer: sponsor(function (remoteProxy) {
-                    remoteProxy('hello domains');
-                })
-            });
-        })
-    });
+
+    var remoteReceiver = domain0.localToRemote(receiver);
+    var remoteProxy = domain1.remoteToLocal(remoteReceiver);
+
+    remoteProxy('hello domains');  // send message between domains
 
     test.ok(tracing.eventLoop());
     test.done();

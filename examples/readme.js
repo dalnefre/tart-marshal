@@ -59,12 +59,12 @@ var pongBeh = function pongBeh(message) {
 
 var ping = domain0.sponsor(pingBeh);
 var pong = domain1.sponsor(pongBeh);
-/*
+/**/
 var pingToken = domain0.localToRemote(ping);
 var pingProxy = domain1.remoteToLocal(pingToken);
 
 pingProxy({ pong: pong });  // send message between domains
-*/
+/**/
 /*
 var d0tf = domain0.tokenFactory;
 var d1pf = domain1.proxyFactory;
@@ -83,7 +83,7 @@ d0tf({
     customer: sponsor(bootstrapBeh)
 });
 */
-/**/
+/*
 var d0tf = domain0.sponsor(
 	marshal.applyBeh(domain0, domain0.localToRemote));
 var d1pf = domain1.sponsor(
@@ -102,7 +102,7 @@ d0tf({
     arguments: [ping],
     customer: sponsor(bootstrapBeh)
 });
-/**/
+*/
 
 tracing.eventLoop({
     log: function(effect) {

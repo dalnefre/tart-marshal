@@ -15,7 +15,7 @@
   },
   "main": "index.js",
   "devDependencies": {
-    "tart-tracing": "0.1.5",
+    "tart-tracing": "0.2.x",
     "tart-transport-http": "0.1.0",
     "tart-transport-https": "0.1.0",
     "tart-transport-tcp": "0.1.0",
@@ -24,7 +24,7 @@
     "nodeunit": "0.8.x"
   },
   "dependencies": {
-    "tart-tracing": "0.1.5",
+    "tart-tracing": "0.2.x",
     "tart": "0.2.x"
   },
   "repository": {
@@ -35,6 +35,7 @@
     "tart",
     "actor",
     "marshal",
+    "network",
     "reference"
   ],
   "contributors": [
