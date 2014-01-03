@@ -1,6 +1,6 @@
 /*
 
-test.js - test script
+multi-sponsor.js - multiple-sponsor domain-routing test
 
 The MIT License (MIT)
 
@@ -30,30 +30,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 "use strict";
 
-var tart = require('tart-tracing');
+var tart = require('tart');
 var marshal = require('../index.js');
 
 var test = module.exports = {};   
 
-test['tracing event loop runs to completion'] = function (test) {
-    test.expect(2);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
-    
-    test.equal(sponsor, tracing.sponsor);
+test['ping/pong example with multiple sponsors'] = function (test) {
+    test.expect(4);
+    var netSponsor = tart.minimal();
+    var dom0Sponsor = tart.minimal();
+    var dom1Sponsor = tart.minimal();
 
-    test.ok(tracing.eventLoop());
-    test.done();
-};
-
-test['ping/pong example from README'] = function (test) {
-    test.expect(5);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
-
-    var network = marshal.router(sponsor);
-    var domain0 = network.domain('ocap:zero');
-    var domain1 = network.domain('ocap:one');
+    var network = marshal.router(netSponsor);
+    var domain0 = network.domain('ocap:zero', dom0Sponsor);
+    var domain1 = network.domain('ocap:one', dom1Sponsor);
 
     var pingBeh = function pingBeh(message) {
         if (message.value === undefined) {
@@ -63,6 +53,7 @@ test['ping/pong example from README'] = function (test) {
         } else {
             test.equal(message.value, 'ponging');
             test.strictEqual(message.ping, ping);
+            test.done();
         }
     };
 
@@ -75,33 +66,8 @@ test['ping/pong example from README'] = function (test) {
     var ping = domain0.sponsor(pingBeh);
     var pong = domain1.sponsor(pongBeh);
 
-    var pingRemote = domain0.localToRemote(ping);
-    var pingProxy = domain1.remoteToLocal(pingRemote);
+    var pingToken = domain0.localToRemote(ping);
+    var pingProxy = domain1.remoteToLocal(pingToken);
 
     pingProxy({ pong: pong });  // send message between domains
-
-    test.ok(tracing.eventLoop());
-    test.done();
-};
-
-test['can send simple string across domains'] = function (test) {
-    test.expect(2);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
-
-    var network = marshal.router(sponsor);
-    var domain0 = network.domain('ocap:zero');
-    var domain1 = network.domain('ocap:one');
-
-    var receiver = domain0.sponsor(function (message) {
-        test.equal(message, 'hello domains');
-    });
-
-    var remoteReceiver = domain0.localToRemote(receiver);
-    var remoteProxy = domain1.remoteToLocal(remoteReceiver);
-
-    remoteProxy('hello domains');  // send message between domains
-
-    test.ok(tracing.eventLoop());
-    test.done();
 };

@@ -52,10 +52,8 @@ var tracing = tart.tracing();
 var sponsor = tracing.sponsor;
 
 var network = marshal.router(sponsor);
-var domain0 = marshal.domain('ocap:zero', sponsor, network.transport);
-network.routingTable['ocap:zero'] = domain0.receptionist;
-var domain1 = marshal.domain('ocap:one', sponsor, network.transport);
-network.routingTable['ocap:one'] = domain1.receptionist;
+var domain0 = network.domain('ocap:zero');
+var domain1 = network.domain('ocap:one');
 
 var pingBeh = function pingBeh(message) {
     if (message.value === undefined) {
@@ -101,9 +99,11 @@ tracing.eventLoop({
 **Public API**
 
   * [marshal.router(sponsor, defaultRoute)](#marshalroutersponsordefaultRoute)
+  * [router.domain(name, sponsor)](#routerdomainnamesponsor)
   * [marshal.domain(name, sponsor, transport)](#marshaldomainnamesponsortransport)
   * [domain.localToRemote(actor)](#domainlocalToRemoteactor)
   * [domain.remoteToLocal(token)](#domainremoteToLocaltoken)
+  * [domain.receptionist(message)](#domainreceptionistmessage)
 
 ### marshal.router(sponsor, defaultRoute)
 
@@ -116,6 +116,8 @@ tracing.eventLoop({
     * `defaultRoute`: _Function_ As specified on creation.
     * `transport`: _Function_ `function (message) {}` 
         Actor used to route messages to remote _domains_.
+    * `domain`: _Function_ `function (name[, sponsor]) {}` 
+        Capability to create a domain registered to use this router as _transport_.
     * `routingTable`: _Object_ (default `{}`) 
         Mapping from _domains_ to _transports_.
 
@@ -125,6 +127,20 @@ The protocol for all _transports_ consist of messages with the format
 The `router.transport` actor uses `router.routingTable` 
 to look up routes (transport actors) 
 based on the _domain_ portion of the `address`.
+
+### router.domain(name\[, sponsor\])
+
+  * `name`: _String_ URI (without fragment) for this domain.
+  * `sponsor`: _Function_ `function (behavior) {}` (default `router.sponsor`)
+      Capability used to create new actors.
+  * Return: _Object_ `domain` capabilities.
+    _Same as `marshal.domain()`_
+
+Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_.
+This is a convenience function that uses `marshal.domain()`, 
+providing `router.transport` as the _transport_.
+It also registers the `domain.receptionist` under `routingTable[name]`.
+If no `sponsor` is provided, `router.sponsor` is used as the default.
 
 ### marshal.domain(name, sponsor, transport)
 
@@ -145,7 +161,8 @@ based on the _domain_ portion of the `address`.
         Actor used to decode messages (in _transport_ format) 
         and deliver them to actors local to the domain.
 
-Creates a new _domain_ and returns actors used to make _tokens_ and _proxies_.
+Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_.
+Also provides a _receptionist_ actor, used by _transports_ to deliver remote messages.
 
 ### domain.localToRemote(actor)
 
@@ -164,3 +181,9 @@ Return a _proxy_ that will forward messages to
 the remote actor represented by the `token`.
 The _proxy_ is a local actor created by `domain.sponsor()`.
 Multiple request with the same `token` always return the same _proxy_.
+
+### domain.receptionist(message)
+
+  * `message`: _Object_ Asynchronous message to domain _receptionist_ actor.
+    * `address`: _String_ destination actor reference _token_.
+    * `json`: _String_ marshal-encoded message content.
