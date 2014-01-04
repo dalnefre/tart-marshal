@@ -31,14 +31,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 "use strict";
 
 var marshal = require('../index.js');
-var tart = require('tart-tracing');
+var tart = require('tart-stepping');
 
 var test = module.exports = {};
 
 test['capability in a message is marshalled when crossing domains'] = function (test) {
     test.expect(6);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
+    var stepping = tart.stepping();
+    var sponsor = stepping.sponsor;
 
     var network = marshal.router(sponsor);
     var domain0 = network.domain('ocap:zero');
@@ -61,6 +61,6 @@ test['capability in a message is marshalled when crossing domains'] = function (
 
     remote1Proxy([implicitA, implicitB]);  // send message between domains
 
-    test.ok(tracing.eventLoop());
+    test.ok(stepping.eventLoop());
     test.done();
 };

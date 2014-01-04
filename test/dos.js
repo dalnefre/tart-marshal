@@ -31,14 +31,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 "use strict";
 
 var marshal = require('../index.js');
-var tart = require('tart-tracing');
+var tart = require('tart-stepping');
 
 var test = module.exports = {};
 
 test['default receptionist should not create proxies for unknown inbound addresses'] = function (test) {
     test.expect(1);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
+    var stepping = tart.stepping();
+    var sponsor = stepping.sponsor;
 
     var network = marshal.router(sponsor);
     var domain = marshal.domain('tcp://localhost:1000/', sponsor, network.transport);
@@ -48,7 +48,7 @@ test['default receptionist should not create proxies for unknown inbound address
         content: '"boom!"'
     });
 
-    tracing.eventLoop({
+    stepping.eventLoop({
         fail: function (error) {
             test.equal(error.message, 
                 "Unknown address: tcp://localhost:1000/#doesnotexist");

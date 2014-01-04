@@ -31,14 +31,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 "use strict";
 
 var marshal = require('../index.js');
-var tart = require('tart-tracing');
+var tart = require('tart-stepping');
 
 var test = module.exports = {};
 
 test['an already created remote reference should be reused for the same actor'] = function (test) {
     test.expect(2);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
+    var stepping = tart.stepping();
+    var sponsor = stepping.sponsor;
 
     var network = marshal.router(sponsor);
     var domain0 = network.domain('ocap:zero');
@@ -60,6 +60,6 @@ test['an already created remote reference should be reused for the same actor'] 
     remoteProxy(actor);  // send message between domains
     remoteProxy(actor);  // send message between domains
 
-    test.ok(tracing.eventLoop());
+    test.ok(stepping.eventLoop());
     test.done();
 };
