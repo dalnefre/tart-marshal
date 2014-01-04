@@ -166,9 +166,3 @@ marshal.domain = function domain(name, sponsor, transport) {
     self.remoteToLocal = remoteToLocal;
     return self;
 };
-
-marshal.applyBeh = function (obj, fn) {
-    return function applyBeh(message) {
-        message.customer(fn.apply(obj, message.arguments));
-    };
-};
