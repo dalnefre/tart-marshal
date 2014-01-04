@@ -16,7 +16,6 @@
   "main": "index.js",
   "devDependencies": {
     "tart-stepping": "0.1.1",
-    "tart-tracing": "0.2.x",
     "tart-transport-http": "0.1.0",
     "tart-transport-https": "0.1.0",
     "tart-transport-tcp": "0.1.0",
