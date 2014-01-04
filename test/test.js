@@ -30,26 +30,26 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 "use strict";
 
-var tart = require('tart-tracing');
+var tart = require('tart-stepping');
 var marshal = require('../index.js');
 
 var test = module.exports = {};   
 
-test['tracing event loop runs to completion'] = function (test) {
+test['stepping event loop runs to completion'] = function (test) {
     test.expect(2);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
+    var stepping = tart.stepping();
+    var sponsor = stepping.sponsor;
     
-    test.equal(sponsor, tracing.sponsor);
+    test.equal(sponsor, stepping.sponsor);
 
-    test.ok(tracing.eventLoop());
+    test.ok(stepping.eventLoop());
     test.done();
 };
 
 test['ping/pong example from README'] = function (test) {
     test.expect(5);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
+    var stepping = tart.stepping();
+    var sponsor = stepping.sponsor;
 
     var network = marshal.router(sponsor);
     var domain0 = network.domain('ocap:zero');
@@ -80,14 +80,14 @@ test['ping/pong example from README'] = function (test) {
 
     pingProxy({ pong: pong });  // send message between domains
 
-    test.ok(tracing.eventLoop());
+    test.ok(stepping.eventLoop());
     test.done();
 };
 
 test['can send simple string across domains'] = function (test) {
     test.expect(2);
-    var tracing = tart.tracing();
-    var sponsor = tracing.sponsor;
+    var stepping = tart.stepping();
+    var sponsor = stepping.sponsor;
 
     var network = marshal.router(sponsor);
     var domain0 = network.domain('ocap:zero');
@@ -102,6 +102,6 @@ test['can send simple string across domains'] = function (test) {
 
     remoteProxy('hello domains');  // send message between domains
 
-    test.ok(tracing.eventLoop());
+    test.ok(stepping.eventLoop());
     test.done();
 };
