@@ -45,11 +45,11 @@ To run the below example run:
 ```javascript
 "use strict";
 
-var tart = require('tart-tracing');
+var tart = require('tart-stepping');
 var marshal = require('../index.js');
 
-var tracing = tart.tracing();
-var sponsor = tracing.sponsor;
+var stepping = tart.stepping();
+var sponsor = stepping.sponsor;
 
 var network = marshal.router(sponsor);
 var domain0 = network.domain('ocap:zero');
@@ -78,7 +78,7 @@ var pingProxy = domain1.remoteToLocal(pingToken);
 
 pingProxy({ pong: pong });  // send message between domains
 
-tracing.eventLoop({
+stepping.eventLoop({
     log: function(effect) {
         console.dir(effect);
     }
