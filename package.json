@@ -15,7 +15,7 @@
   },
   "main": "index.js",
   "devDependencies": {
-    "tart-stepping": "0.1.1",
+    "tart-stepping": "0.2.x",
     "tart-transport-http": "0.1.0",
     "tart-transport-https": "0.1.0",
     "tart-transport-tcp": "0.1.0",
@@ -24,7 +24,7 @@
     "nodeunit": "0.8.x"
   },
   "dependencies": {
-    "tart-stepping": "0.1.1",
+    "tart-stepping": "0.2.x",
     "tart": "0.2.x"
   },
   "repository": {
