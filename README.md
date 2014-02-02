@@ -33,6 +33,7 @@ On receipt of a _marshalled_ message, the destination _domain_ replaces any _tok
 
   * [Usage](#usage)
   * [Tests](#tests)
+  * [Examples](#examples)
   * [Documentation](#documentation)
 
 ## Usage
