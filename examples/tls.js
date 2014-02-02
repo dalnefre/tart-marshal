@@ -72,13 +72,8 @@ var ping = domain0.sponsor(pingBeh);
 var pong = domain1.sponsor(pongBeh);
 
 var bootstrapBeh = function bootstrapBeh(pingToken) {
-    domain1.proxyFactory({
-        remote: pingToken,
-        customer: this.self
-    });
-    this.behavior = function (pingProxy) {
-        pingProxy({pong: pong});
-    };
+    var pingProxy = domain1.remoteToLocal(pingToken);
+    pingProxy({pong: pong});
 };
 
 var listenAcks = 0;
@@ -87,7 +82,8 @@ var bothAck = sponsor(function bothAckBeh(message) {
     listenAcks++;
     if (listenAcks == 2) {
         // both servers are listening, bootstrap and start ping-pong
-        domain0.tokenFactory({local: ping, customer: sponsor(bootstrapBeh)});
+        var pingToken = domain0.localToRemote(ping);
+        sponsor(bootstrapBeh)(pingToken);
     }
 });
 
