@@ -31,6 +31,10 @@ The process begins by asking a _domain_ to generate a _token_ representing a rem
 
 On receipt of a _marshalled_ message, the destination _domain_ replaces any _tokens_ with references to local actors, and delivers the message to the target actor (identified by the _token_ used to create the _proxy_). Unrecognized _tokens_ are replaced by new local _proxies_ for remote references.
 
+  * [Usage](#usage)
+  * [Tests](#tests)
+  * [Documentation](#documentation)
+
 ## Usage
 
 To run the below example run:
