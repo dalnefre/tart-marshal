@@ -1,14 +1,20 @@
 tart-marshal
 ============
 
+_Stability: 1 - [Experimental](https://github.com/tristanls/stability-index#stability-1---experimental)_
+
+[![NPM version](https://badge.fury.io/js/tart-marshal.png)](http://npmjs.org/package/tart-marshal)
+
 Send messages between memory domains (tart module)
 
+## Contributors
+
+[@dalnefre](https://github.com/dalnefre), [@tristanls](https://github.com/tristanls)
+
 ## Overview
-The `tart-marshal` module provides a mechanism 
-for sending messages between memory domains.
-This involves _marshalling_ each message,
-converting local actor references into unguessable _tokens_ 
-for transmission across a network.
+
+The `tart-marshal` module provides a mechanism for sending messages between memory domains. This involves _marshalling_ each message, converting local actor references into unguessable _tokens_ for transmission across a network.
+
 ```
 domain0:                          domain1:
 +----------------+                 +----------------+
@@ -21,20 +27,9 @@ domain0:                          domain1:
 |                |                 |                |
 +----------------+                 +----------------+
 ```
-The process begins by asking a _domain_ 
-to generate a _token_ representing a remote reference to a local actor.
-The _token_ is then used to create a _proxy_ in another domain.
-The _proxy_ is an actor, local to another domain, 
-that _mashals_ and forwards messages across a network
-to a remote actor in the _domain_ which generated the _token_.
+The process begins by asking a _domain_ to generate a _token_ representing a remote reference to a local actor. The _token_ is then used to create a _proxy_ in another domain. The _proxy_ is an actor, local to another domain, that _mashals_ and forwards messages across a network to a remote actor in the _domain_ which generated the _token_.
 
-On receipt of a _marshalled_ message,
-the destination _domain_ replaces any _tokens_
-with references to local actors,
-and delivers the message to the target actor
-(identified by the _token_ used to create the _proxy_).
-Unrecognized _tokens_ are replaced by
-new local _proxies_ for remote references.
+On receipt of a _marshalled_ message, the destination _domain_ replaces any _tokens_ with references to local actors, and delivers the message to the target actor (identified by the _token_ used to create the _proxy_). Unrecognized _tokens_ are replaced by new local _proxies_ for remote references.
 
 ## Usage
 
@@ -98,11 +93,11 @@ stepping.eventLoop({
 
 **Public API**
 
-  * [marshal.router(sponsor, defaultRoute)](#marshalroutersponsordefaultRoute)
-  * [router.domain(name, sponsor)](#routerdomainnamesponsor)
-  * [marshal.domain(name, sponsor, transport)](#marshaldomainnamesponsortransport)
-  * [domain.localToRemote(actor)](#domainlocalToRemoteactor)
-  * [domain.remoteToLocal(token)](#domainremoteToLocaltoken)
+  * [marshal.router(sponsor, defaultRoute)](#marshalroutersponsor-defaultroute)
+  * [router.domain(name, sponsor)](#routerdomainname-sponsor)
+  * [marshal.domain(name, sponsor, transport)](#marshaldomainname-sponsor-transport)
+  * [domain.localToRemote(actor)](#domainlocaltoremoteactor)
+  * [domain.remoteToLocal(token)](#domainremotetolocaltoken)
   * [domain.receptionist(message)](#domainreceptionistmessage)
 
 ### marshal.router(sponsor, defaultRoute)
@@ -121,12 +116,7 @@ stepping.eventLoop({
     * `routingTable`: _Object_ (default `{}`) 
         Mapping from _domains_ to _transports_.
 
-Creates a new _router_ and returns a control object.  
-The protocol for all _transports_ consist of messages with the format 
-`{ address:<token>, message:<json> }`.
-The `router.transport` actor uses `router.routingTable` 
-to look up routes (transport actors) 
-based on the _domain_ portion of the `address`.
+Creates a new _router_ and returns a control object. The protocol for all _transports_ consist of messages with the format `{ address:<token>, message:<json> }`. The `router.transport` actor uses `router.routingTable` to look up routes (transport actors) based on the _domain_ portion of the `address`.
 
 ### router.domain(name\[, sponsor\])
 
@@ -136,11 +126,7 @@ based on the _domain_ portion of the `address`.
   * Return: _Object_ `domain` capabilities.
     _Same as `marshal.domain()`_
 
-Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_.
-This is a convenience function that uses `marshal.domain()`, 
-providing `router.transport` as the _transport_.
-It also registers the `domain.receptionist` under `routingTable[name]`.
-If no `sponsor` is provided, `router.sponsor` is used as the default.
+Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. This is a convenience function that uses `marshal.domain()`, providing `router.transport` as the _transport_. It also registers the `domain.receptionist` under `routingTable[name]`. If no `sponsor` is provided, `router.sponsor` is used as the default.
 
 ### marshal.domain(name, sponsor, transport)
 
@@ -161,26 +147,21 @@ If no `sponsor` is provided, `router.sponsor` is used as the default.
         Actor used to decode messages (in _transport_ format) 
         and deliver them to actors local to the domain.
 
-Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_.
-Also provides a _receptionist_ actor, used by _transports_ to deliver remote messages.
+Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. Also provides a _receptionist_ actor, used by _transports_ to deliver remote messages.
 
 ### domain.localToRemote(actor)
 
   * `actor`: _Function_ `function (message) {}` local actor reference.
   * Return: _String_ remote actor reference _token_.
 
-Return a _token_ representing the local `actor`.
-Multiple request with the same `actor` always produce the same _token_.
+Return a _token_ representing the local `actor`. Multiple request with the same `actor` always produce the same _token_.
 
 ### domain.remoteToLocal(token)
 
   * `token`: _String_ remote actor reference _token_.
   * Return: _Function_ `function (message) {}` _proxy_ actor reference.
 
-Return a _proxy_ that will forward messages to
-the remote actor represented by the `token`.
-The _proxy_ is a local actor created by `domain.sponsor()`.
-Multiple request with the same `token` always return the same _proxy_.
+Return a _proxy_ that will forward messages to the remote actor represented by the `token`. The _proxy_ is a local actor created by `domain.sponsor()`. Multiple request with the same `token` always return the same _proxy_.
 
 ### domain.receptionist(message)
 
