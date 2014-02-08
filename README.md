@@ -150,6 +150,10 @@ Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. 
         Capability used to make _tokens_ from local actor references.
     * `remoteToLocal`: _Function_ `function (token) {}` 
         Capability used to make _proxies_ from remote actor _tokens_.
+    * `decode`: _Function_ `function (json) {}`
+        Capability used to decode messages for use within the `domain`.
+    * `encode`: _Function_ `function (message) {}`
+        Capability used to encode messages from within the `domain`.
     * `receptionist`: _Function_ `function (message) {}`
         Actor used to decode messages (in _transport_ format) 
         and deliver them to actors local to the domain.

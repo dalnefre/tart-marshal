@@ -134,6 +134,12 @@ marshal.domain = function domain(name, sponsor, transport) {
         if (typeof value === 'string') {
             return encodeString(value);
         }
+        if (value instanceof Error) {
+            return {
+                message: value.message,
+                stack: value.stack
+            };
+        }
         return value;
     };
     var encodeString = function encodeString(value) {
