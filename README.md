@@ -101,6 +101,8 @@ stepping.eventLoop({
   * [marshal.router(sponsor, defaultRoute)](#marshalroutersponsor-defaultroute)
   * [router.domain(name, sponsor)](#routerdomainname-sponsor)
   * [marshal.domain(name, sponsor, transport)](#marshaldomainname-sponsor-transport)
+  * [domain.decode(json)](#domaindecodejson)
+  * [domain.encode(message)](#domainencodemessage)
   * [domain.localToRemote(actor)](#domainlocaltoremoteactor)
   * [domain.remoteToLocal(token)](#domainremotetolocaltoken)
   * [domain.receptionist(message)](#domainreceptionistmessage)
@@ -153,6 +155,20 @@ Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. 
         and deliver them to actors local to the domain.
 
 Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. Also provides a _receptionist_ actor, used by _transports_ to deliver remote messages.
+
+### domain.decode(json)
+
+  * `json`: _JSON_ JSON encoded message.
+  * Return: _Any_ Message decoded for use within the `domain`.
+
+Decodes `json`, replacing any capability references using [domain.remoteToLocal(token)](#domainremotetolocaltoken).
+
+### domain.encode(message)
+
+  * `message`: _Any_ Message from within the `domain` to be encoded for transport.
+  * Return: _JSON_ Encoded `message` as JSON.
+
+Encodes the `message`, replacing any functions using [domain.localToRemote(actor)](#domainlocaltoremoteactor).
 
 ### domain.localToRemote(actor)
 

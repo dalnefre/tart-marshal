@@ -162,6 +162,8 @@ marshal.domain = function domain(name, sponsor, transport) {
         return value.slice(1);
     };
 
+    self.encode = encode;
+    self.decode = decode;
     self.localToRemote = localToRemote;
     self.remoteToLocal = remoteToLocal;
     return self;
