@@ -50,7 +50,7 @@ marshal.router = function router(sponsor, defaultRoute) {  // table-based routin
         var domain = parsed[0];
         var route = self.routingTable[domain];
         if (!route) {
-            route = defaultRoute;
+            route = self.defaultRoute;
         }
         route(message);
     });
