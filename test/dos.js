@@ -50,7 +50,7 @@ test['default receptionist should not create proxies for unknown inbound address
 
     stepping.eventLoop({
         fail: function (error) {
-            test.equal(error.message, 
+            test.equal(error.message,
                 "Unknown address: tcp://localhost:1000/#doesnotexist");
         }
     });

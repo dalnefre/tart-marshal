@@ -72,7 +72,7 @@ marshal.domain = function domain(name, sponsor, transport) {
     self.name = name;
     self.sponsor = sponsor;
     self.transport = transport;
-    
+
     self.receptionist = sponsor(function receptionistBeh(message) {
         // { address:<token>, content:<json> }
         var local = tokenMap[message.address];
@@ -116,7 +116,7 @@ marshal.domain = function domain(name, sponsor, transport) {
     var proxy = function proxy(remote) {
         return function proxyBeh(message) {
             transport({
-                address: remote, 
+                address: remote,
                 content: encode(message)
             });
         };

@@ -33,13 +33,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 var tart = require('tart-stepping');
 var marshal = require('../index.js');
 
-var test = module.exports = {};   
+var test = module.exports = {};
 
 test['stepping event loop runs to completion'] = function (test) {
     test.expect(2);
     var stepping = tart.stepping();
     var sponsor = stepping.sponsor;
-    
+
     test.equal(sponsor, stepping.sponsor);
 
     test.ok(stepping.eventLoop());

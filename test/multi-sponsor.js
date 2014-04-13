@@ -33,7 +33,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 var tart = require('tart');
 var marshal = require('../index.js');
 
-var test = module.exports = {};   
+var test = module.exports = {};
 
 test['ping/pong example with multiple sponsors'] = function (test) {
     test.expect(4);

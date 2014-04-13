@@ -95,8 +95,8 @@ var listenDomain0 = domain0.sponsor(domain0TcpCaps.listenBeh);
 var closeDomain0 = domain0.sponsor(domain0TcpCaps.closeBeh);
 
 listenDomain0({
-    host: 'localhost', 
-    port: 10000, 
+    host: 'localhost',
+    port: 10000,
     ok: bothAck,
 
     key: fs.readFileSync(path.normalize(path.join(__dirname, 'tls/server-key.pem'))),
@@ -114,8 +114,8 @@ var listenDomain1 = domain1.sponsor(domain1TcpCaps.listenBeh);
 var closeDomain1 = domain1.sponsor(domain1TcpCaps.closeBeh);
 
 listenDomain1({
-    host: 'localhost', 
-    port: 10001, 
+    host: 'localhost',
+    port: 10001,
     ok: bothAck,
 
     key: fs.readFileSync(path.normalize(path.join(__dirname, 'tls/server-key.pem'))),
