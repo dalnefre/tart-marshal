@@ -58,7 +58,9 @@ marshal.router = function router(sponsor, defaultRoute) {  // table-based routin
     self.domain = function domain(name, sponsor) {
         sponsor = sponsor || self.sponsor;
         var dom = marshal.domain(name, sponsor, self.transport);
-        self.routingTable[name] = dom.receptionist;
+        self.routingTable[name] = function route(message) {
+            dom.receptionist(message);  // call domain endpoint
+        };
         return dom;
     };
 
