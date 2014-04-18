@@ -1,6 +1,6 @@
 {
   "name": "tart-marshal",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Send messages between memory domains (tart module)",
   "scripts": {
     "all-examples": "npm run http && npm run https && npm run tcp && npm run tls && npm run udp",
