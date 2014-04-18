@@ -36,13 +36,13 @@ marshal.router = function router(sponsor, defaultRoute) {  // table-based routin
     var self = {};
 
     self.sponsor = sponsor;
-    self.defaultRoute = defaultRoute || sponsor(function(message) {
+    self.defaultRoute = defaultRoute || function route(message) {
         throw Error('No route for ' + message.address);
-    });
+    };
 
     self.routingTable = {};  // mapping from domains to transports
 
-    self.transport = sponsor(function routerBeh(message) {
+    self.transport = function transport(message) {
         // { address:<token>, content:<json> }
         var remote = message.address;
         var parsed = remote.split('#');
@@ -53,7 +53,7 @@ marshal.router = function router(sponsor, defaultRoute) {  // table-based routin
             route = self.defaultRoute;
         }
         route(message);
-    });
+    };
 
     self.domain = function domain(name, sponsor) {
         sponsor = sponsor || self.sponsor;
@@ -73,12 +73,12 @@ marshal.domain = function domain(name, sponsor, transport) {
     self.sponsor = sponsor;
     self.transport = transport;
 
-    self.receptionist = sponsor(function receptionistBeh(message) {
+    self.receptionist = function endpoint(message) {
         // { address:<token>, content:<json> }
         var local = tokenMap[message.address];
         if (!local) { throw Error('Unknown address: ' + message.address); }
         local(decode(message.content));
-    });
+    };
 
     var localToRemote = function localToRemote(local) {
         var remote;

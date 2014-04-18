@@ -43,16 +43,16 @@ test['default receptionist should not create proxies for unknown inbound address
     var network = marshal.router(sponsor);
     var domain = marshal.domain('tcp://localhost:1000/', sponsor, network.transport);
 
-    domain.receptionist({
-        address: 'tcp://localhost:1000/#doesnotexist',
-        content: '"boom!"'
-    });
+	try {
+		domain.receptionist({
+			address: 'tcp://localhost:1000/#doesnotexist',
+			content: '"boom!"'
+		});
+		stepping.eventLoop();
+	} catch (error) {
+		test.equal(error.message, 
+			"Unknown address: tcp://localhost:1000/#doesnotexist");
+	}
 
-    stepping.eventLoop({
-        fail: function (error) {
-            test.equal(error.message,
-                "Unknown address: tcp://localhost:1000/#doesnotexist");
-        }
-    });
     test.done();
 };
