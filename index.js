@@ -121,7 +121,7 @@ marshal.domain = function domain(name, sponsor, transport) {
     };
     var proxy = function proxy(remote) {
         return function proxyBeh(message) {
-            transport({
+            self.transport({
                 address: remote,
                 content: encode(message)
             });
