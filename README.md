@@ -105,6 +105,7 @@ stepping.eventLoop({
   * [domain.encode(message)](#domainencodemessage)
   * [domain.localToRemote(actor)](#domainlocaltoremoteactor)
   * [domain.remoteToLocal(token)](#domainremotetolocaltoken)
+  * [domain.bindLocal(token, actor)](#bindlocaltokenactor)
   * [domain.receptionist(message)](#domainreceptionistmessage)
 
 ### marshal.router(sponsor, defaultRoute)
@@ -187,6 +188,13 @@ Return a _token_ representing the local `actor`. Multiple request with the same 
   * Return: _Function_ `function (message) {}` _proxy_ actor reference.
 
 Return a _proxy_ that will forward messages to the remote actor represented by the `token`. The _proxy_ is a local actor created by `domain.sponsor()`. Multiple request with the same `token` always return the same _proxy_.
+
+### domain.bindLocal(token, actor)
+
+  * `token`: _String_ remote actor reference _token_.
+  * `actor`: _Function_ `function (message) {}` local actor reference.
+
+Associate a `token` with a local `actor`. Future calls to `domain.localToRemote` with this `token` always return this `actor`.
 
 ### domain.receptionist(message)
 

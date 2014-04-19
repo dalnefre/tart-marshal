@@ -82,6 +82,10 @@ marshal.domain = function domain(name, sponsor, transport) {
         local(decode(message.content));
     };
 
+    var bindLocal = function bindLocal(remote, local) {
+        tokenMap[remote] = local;
+    };
+
     var localToRemote = function localToRemote(local) {
         var remote;
         for (remote in tokenMap) {
@@ -91,27 +95,27 @@ marshal.domain = function domain(name, sponsor, transport) {
         }
         /* not found, create a new entry */
         remote = name + '#' + generateCapability();
-        tokenMap[remote] = local;
+        bindLocal(remote, local);
         return remote;
     };
     var generateCapability = function generateCapability() {
         try {
             return require('crypto').randomBytes(42).toString('base64');
         } catch (exception) {
-            // FIXME: if the system runs out of entropy, an exception will be
-            //        thrown; we need to define system behavior when we are out
-            //        of entropy, remembering that the entire OS crypto activity
-            //        (including any encrypted network traffic) will grind to
-            //        a halt while waiting for entropy to be available
+            // FIXME: if the system runs out of entropy, an exception will be thrown;
+            //        we need to define system behavior when we are out of entropy,
+            //        remembering that the entire OS crypto activity
+            //        (including any encrypted network traffic)
+            //        will grind to a halt while waiting for entropy to be available
             throw exception;
         }
     };
-
+    
     var remoteToLocal = function remoteToLocal(remote) {
         var local = tokenMap[remote];
         if (local === undefined) {
             local = sponsor(proxy(remote));  // create new proxy
-            tokenMap[remote] = local;
+            bindLocal(remote, local);
         }
         return local;
     };
@@ -174,5 +178,6 @@ marshal.domain = function domain(name, sponsor, transport) {
     self.decode = decode;
     self.localToRemote = localToRemote;
     self.remoteToLocal = remoteToLocal;
+    self.bindLocal = bindLocal;
     return self;
 };
