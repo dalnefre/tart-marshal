@@ -194,7 +194,7 @@ Return a _proxy_ that will forward messages to the remote actor represented by t
   * `token`: _String_ remote actor reference _token_.
   * `actor`: _Function_ `function (message) {}` local actor reference.
 
-Associate a `token` with a local `actor`. Future calls to `domain.localToRemote` with this `token` always return this `actor`.
+Associate a `token` with a local `actor`. Future calls to `domain.localToRemote` with this `actor` always return this `token`.
 
 ### domain.receptionist(message)
 
