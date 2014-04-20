@@ -114,7 +114,7 @@ marshal.domain = function domain(name, sponsor, transport) {
     var remoteToLocal = function remoteToLocal(remote) {
         var local = tokenMap[remote];
         if (local === undefined) {
-            local = sponsor(proxy(remote));  // create new proxy
+            local = proxy(remote);  // create new proxy function
             bindLocal(remote, local);
         }
         return local;
