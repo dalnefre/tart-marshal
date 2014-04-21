@@ -40,7 +40,7 @@ test['an already created remote reference should be reused for the same actor'] 
     var stepping = tart.stepping();
     var sponsor = stepping.sponsor;
 
-    var network = marshal.router(sponsor);
+    var network = marshal.router();
     var domain0 = network.domain('ocap:zero');
     var domain1 = network.domain('ocap:one');
 
@@ -51,8 +51,8 @@ test['an already created remote reference should be reused for the same actor'] 
         };
     };
 
-    var actor = domain0.sponsor(function () {});
-    var remote = domain1.sponsor(remoteBeh);
+    var actor = sponsor(function () {});
+    var remote = sponsor(remoteBeh);
 
     var remoteMarshalled = domain0.localToRemote(remote);
     var remoteProxy = domain1.remoteToLocal(remoteMarshalled);

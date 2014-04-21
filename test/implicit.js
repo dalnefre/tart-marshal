@@ -40,7 +40,7 @@ test['capability in a message is marshalled when crossing domains'] = function (
     var stepping = tart.stepping();
     var sponsor = stepping.sponsor;
 
-    var network = marshal.router(sponsor);
+    var network = marshal.router();
     var domain0 = network.domain('ocap:zero');
     var domain1 = network.domain('ocap:one');
 
@@ -52,9 +52,9 @@ test['capability in a message is marshalled when crossing domains'] = function (
         test.ok(typeof implicitB === 'function');
     };
 
-    var implicitA = domain0.sponsor(function () {});
-    var implicitB = domain0.sponsor(function () {});
-    var remote1 = domain1.sponsor(remote1Beh);
+    var implicitA = sponsor(function () {});
+    var implicitB = sponsor(function () {});
+    var remote1 = sponsor(remote1Beh);
 
     var remote1Marshalled = domain0.localToRemote(remote1);
     var remote1Proxy = domain1.remoteToLocal(remote1Marshalled);

@@ -40,7 +40,7 @@ test['errors are marshalled as objects with stack and message properties'] = fun
     var stepping = tart.stepping();
     var sponsor = stepping.sponsor;
 
-    var network = marshal.router(sponsor);
+    var network = marshal.router();
     var domain0 = network.domain('ocap:zero');
     var domain1 = network.domain('ocap:one');
 
@@ -54,8 +54,8 @@ test['errors are marshalled as objects with stack and message properties'] = fun
         test.ok(error.stack);
     };
 
-    var errorGenerator0 = domain0.sponsor(errorGeneratorBeh);
-    var errorTester1 = domain1.sponsor(errorTestBeh);
+    var errorGenerator0 = sponsor(errorGeneratorBeh);
+    var errorTester1 = sponsor(errorTestBeh);
 
     var errorGeneratorURI = domain0.localToRemote(errorGenerator0);
     var errorGeneratorProxy = domain1.remoteToLocal(errorGeneratorURI);

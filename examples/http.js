@@ -38,8 +38,8 @@ var sponsor = tart.minimal();
 
 var send = sponsor(transport.sendBeh);
 
-var domain0 = marshal.domain('http://localhost:10000/', sponsor, send);
-var domain1 = marshal.domain('http://localhost:10001/', sponsor, send);
+var domain0 = marshal.domain('http://localhost:10000/', send);
+var domain1 = marshal.domain('http://localhost:10001/', send);
 
 var pingBeh = function pingBeh(message) {
     console.dir(message);
@@ -60,8 +60,8 @@ var pongBeh = function pongBeh(message) {
     console.log('pong', message.value);
 };
 
-var ping = domain0.sponsor(pingBeh);
-var pong = domain1.sponsor(pongBeh);
+var ping = sponsor(pingBeh);
+var pong = sponsor(pongBeh);
 
 var bootstrapBeh = function bootstrapBeh(pingToken) {
     var pingProxy = domain1.remoteToLocal(pingToken);
@@ -83,13 +83,13 @@ var domain0TcpCaps = transport.server(domain0.receptionist);
 var domain1TcpCaps = transport.server(domain1.receptionist);
 
 // start domain 0 server
-var listenDomain0 = domain0.sponsor(domain0TcpCaps.listenBeh);
-var closeDomain0 = domain0.sponsor(domain0TcpCaps.closeBeh);
+var listenDomain0 = sponsor(domain0TcpCaps.listenBeh);
+var closeDomain0 = sponsor(domain0TcpCaps.closeBeh);
 
 listenDomain0({host: 'localhost', port: 10000, ok: bothAck});
 
 // start domain 1 server
-var listenDomain1 = domain1.sponsor(domain1TcpCaps.listenBeh);
-var closeDomain1 = domain1.sponsor(domain1TcpCaps.closeBeh);
+var listenDomain1 = sponsor(domain1TcpCaps.listenBeh);
+var closeDomain1 = sponsor(domain1TcpCaps.closeBeh);
 
 listenDomain1({host: 'localhost', port: 10001, ok: bothAck});

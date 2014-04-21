@@ -32,10 +32,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 var marshal = module.exports;
 
-marshal.router = function router(sponsor, defaultRoute) {  // table-based routing transport
+marshal.router = function router(defaultRoute) {  // table-based routing transport
     var self = {};
 
-    self.sponsor = sponsor;
     self.defaultRoute = defaultRoute || function route(message) {
         throw Error('No route for ' + message.address);
     };
@@ -55,9 +54,8 @@ marshal.router = function router(sponsor, defaultRoute) {  // table-based routin
         route(message);
     };
 
-    self.domain = function domain(name, sponsor) {
-        sponsor = sponsor || self.sponsor;
-        var dom = marshal.domain(name, sponsor, self.transport);
+    self.domain = function domain(name) {
+        var dom = marshal.domain(name, self.transport);
         self.routingTable[name] = function route(message) {
             dom.receptionist(message);  // call domain endpoint
         };
@@ -67,12 +65,11 @@ marshal.router = function router(sponsor, defaultRoute) {  // table-based routin
     return self;
 };
 
-marshal.domain = function domain(name, sponsor, transport) {
+marshal.domain = function domain(name, transport) {
     var self = {};
     var tokenMap = {};
 
     self.name = name;
-    self.sponsor = sponsor;
     self.transport = transport;
 
     self.receptionist = function endpoint(message) {
