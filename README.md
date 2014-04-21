@@ -111,17 +111,17 @@ stepping.eventLoop({
 ### marshal.router([defaultRoute])
 
   * `defaultRoute`: _Function_ `function (message) {}` (default _throws_)
-      Actor used to make route messages to unrecognized domains.
+      Handle messages to unrecognized domains.
   * Return: _Object_ `router` capabilities.
     * `defaultRoute`: _Function_ As specified on creation.
     * `transport`: _Function_ `function (message) {}`
-        Actor used to route messages to remote _domains_.
+        Route messages (in _transport_ format) to remote domains.
     * `domain`: _Function_ `function (name) {}`
-        Capability to create a domain registered to use this router as _transport_.
+        Create a domain registered to use this router as _transport_.
     * `routingTable`: _Object_ (default `{}`)
         Mapping from _domains_ to _transports_.
 
-Creates a new _router_ and returns a control object. The protocol for all _transports_ consists of messages with the format `{ address:<token>, message:<json> }`. The `router.transport` function uses `router.routingTable` to look up routes (transports) based on the _domain_ portion of the `address`.
+Creates a new _router_ and returns a control object. The protocol for all _transports_ consists of messages with the format `{ address:<token>, message:<json> }` (called _transport_ format). The `router.transport` function uses `router.routingTable` to look up routes (transports) based on the _domain_ portion of the `address`.
 
 ### router.domain(name)
 
@@ -135,23 +135,23 @@ Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. 
 
   * `name`: _String_ URI (without fragment) for this domain.
   * `transport`: _Function_ `function (message) {}`
-      Actor used to route messages (in _transport_ format) to remote domains.
+      Route messages (in _transport_ format) to remote domains.
   * Return: _Object_ `domain` capabilities.
     * `name`: _String_ As specified on creation.
     * `transport`: _Function_ As specified on creation.
     * `localToRemote`: _Function_ `function (actor) {}`
-        Capability to make _tokens_ from local actor references.
+        Make a _token_ from a local _actor_ reference.
     * `remoteToLocal`: _Function_ `function (token) {}`
-        Capability to make _proxies_ from remote actor _tokens_.
+        Make a _proxy_ from remote actor _token_.
     * `bindLocal`: _Function_ `function (token, actor) {}`
-        Capability to associate a _token_ with a local _actor_ reference.
+        Associate a _token_ with a local _actor_ reference.
     * `decode`: _Function_ `function (json) {}`
-        Capability to decode messages for use within the `domain`.
+        Decode a message for use within the `domain`.
     * `encode`: _Function_ `function (message) {}`
-        Capability to encode messages from within the `domain`.
+        Encode a message from within the `domain`.
     * `receptionist`: _Function_ `function (message) {}`
-        Capability to decode messages (in _transport_ format)
-        and deliver them to actors local to the domain.
+        Decode a message (in _transport_ format)
+        and deliver it to an actor local to the domain.
 
 Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. Also provides a _receptionist_, used by _transports_ to deliver remote messages.
 
