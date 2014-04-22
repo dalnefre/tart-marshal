@@ -111,13 +111,13 @@ marshal.domain = function domain(name, transport) {
     var remoteToLocal = function remoteToLocal(remote) {
         var local = tokenMap[remote];
         if (local === undefined) {
-            local = proxy(remote);  // create new proxy function
+            local = newProxy(remote);  // create new proxy function
             bindLocal(remote, local);
         }
         return local;
     };
-    var proxy = function proxy(remote) {
-        return function proxyBeh(message) {
+    var newProxy = function newProxy(remote) {
+        return function proxy(message) {
             self.transport({
                 address: remote,
                 content: encode(message)
