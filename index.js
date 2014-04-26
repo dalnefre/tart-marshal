@@ -126,9 +126,7 @@ marshal.domain = function domain(name, transport) {
     };
 
     var encode = function encode(message) {
-        var json;
-        json = JSON.stringify(message, replacer);
-        return json;
+        return JSON.stringify(message, replacer);
     };
     var replacer = function replacer(key, value) {
         if (typeof value === 'function') {
@@ -150,9 +148,10 @@ marshal.domain = function domain(name, transport) {
     };
 
     var decode = function decode(json) {
-        var message;
-        message = JSON.parse(json, reviver);
-        return message;
+        if (json === undefined) {
+            return undefined;
+        }
+        return JSON.parse(json, reviver);
     };
     var reviver = function reviver(key, value) {
         if (typeof value === 'string') {
