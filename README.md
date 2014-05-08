@@ -98,9 +98,9 @@ stepping.eventLoop({
 
 **Public API**
 
-  * [marshal.router(\[defaultRoute)\]](#marshalrouterdefaultroute)
-  * [router.domain(name)](#routerdomainname)
-  * [marshal.domain(name, transport)](#marshaldomainnametransport)
+  * [marshal.router(\[defaultRoute\])](#marshalrouterdefaultroute)
+  * [router.domain(\[name\])](#routerdomainname)
+  * [marshal.domain(\[name\], \[transport\])](#marshaldomainnametransport)
   * [domain.decode(json)](#domaindecodejson)
   * [domain.encode(message)](#domainencodemessage)
   * [domain.localToRemote(actor)](#domainlocaltoremoteactor)
@@ -123,21 +123,21 @@ stepping.eventLoop({
 
 Creates a new _router_ and returns a control object. The protocol for all _transports_ consists of messages with the format `{ address:<token>, message:<json> }` (called _transport_ format). The `router.transport` function uses `router.routingTable` to look up routes (transports) based on the _domain_ portion of the `address`.
 
-### router.domain(name)
+### router.domain([name])
 
-  * `name`: _String_ URI (without fragment) for this domain.
+  * `name`: _String_ URI (without fragment) for this domain. (default auto-generated)
   * Return: _Object_ `domain` capabilities.
     _Same as `marshal.domain()`_
 
 Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. This is a convenience function that uses `marshal.domain()`, providing `router.transport` as the _transport_. It also registers the `domain.receptionist` under `router.routingTable[name]`.
 
-### marshal.domain(name, transport)
+### marshal.domain([name], [transport])
 
-  * `name`: _String_ URI (without fragment) for this domain.
-  * `transport`: _Function_ `function (message) {}`
+  * `name`: _String_ URI (without fragment) for this domain. (default auto-generated)
+  * `transport`: _Function_ `function (message) {}` (default _throws_)
       Route messages (in _transport_ format) to remote domains.
   * Return: _Object_ `domain` capabilities.
-    * `name`: _String_ As specified on creation.
+    * `name`: _String_ As specified (or generated) on creation.
     * `transport`: _Function_ As specified on creation.
     * `localToRemote`: _Function_ `function (actor) {}`
         Make a _token_ from a local _actor_ reference.

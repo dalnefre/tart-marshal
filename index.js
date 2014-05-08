@@ -32,12 +32,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 var marshal = module.exports;
 
+marshal.defaultRoute = function route(message) {
+    throw Error('No route for ' + message.address);
+};
+
 marshal.router = function router(defaultRoute) {  // table-based routing transport
     var self = {};
 
-    self.defaultRoute = defaultRoute || function route(message) {
-        throw Error('No route for ' + message.address);
-    };
+    self.defaultRoute = defaultRoute || marshal.defaultRoute;
 
     self.routingTable = {};  // mapping from domains to transports
 
@@ -56,7 +58,7 @@ marshal.router = function router(defaultRoute) {  // table-based routing transpo
 
     self.domain = function domain(name) {
         var dom = marshal.domain(name, self.transport);
-        self.routingTable[name] = function route(message) {
+        self.routingTable[dom.name] = function route(message) {
             dom.receptionist(message);  // call domain endpoint
         };
         return dom;
@@ -68,9 +70,6 @@ marshal.router = function router(defaultRoute) {  // table-based routing transpo
 marshal.domain = function domain(name, transport) {
     var self = {};
     var tokenMap = {};
-
-    self.name = name;
-    self.transport = transport;
 
     self.receptionist = function endpoint(message) {
         // { address:<token>, content:<json> }
@@ -91,9 +90,12 @@ marshal.domain = function domain(name, transport) {
             }
         }
         /* not found, create a new entry */
-        remote = name + '#' + generateCapability();
+        remote = generateToken();
         bindLocal(remote, local);
         return remote;
+    };
+    var generateToken = function generateToken() {
+        return self.name + '#' + generateCapability();
     };
     var generateCapability = function generateCapability() {
         try {
@@ -169,7 +171,16 @@ marshal.domain = function domain(name, transport) {
     var decodeString = function decodeString(value) {
         return value.slice(1);
     };
+    
+    var generateName = function generateName(name) {
+        if (!name) {
+            name = 'ansible://' + generateCapability() + '/';
+        }
+        return name;
+    };
 
+    self.name = generateName(name);
+    self.transport = transport || marshal.defaultRoute;
     self.encode = encode;
     self.decode = decode;
     self.localToRemote = localToRemote;
