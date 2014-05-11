@@ -32,17 +32,18 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 var marshal = module.exports;
 
-marshal.router = function router(sponsor, defaultRoute) {  // table-based routing transport
+marshal.defaultRoute = function route(message) {
+    throw Error('No route for ' + message.address);
+};
+
+marshal.router = function router(defaultRoute) {  // table-based routing transport
     var self = {};
 
-    self.sponsor = sponsor;
-    self.defaultRoute = defaultRoute || sponsor(function(message) {
-        throw Error('No route for ' + message.address);
-    });
+    self.defaultRoute = defaultRoute || marshal.defaultRoute;
 
     self.routingTable = {};  // mapping from domains to transports
 
-    self.transport = sponsor(function routerBeh(message) {
+    self.transport = function transport(message) {
         // { address:<token>, content:<json> }
         var remote = message.address;
         var parsed = remote.split('#');
@@ -53,32 +54,33 @@ marshal.router = function router(sponsor, defaultRoute) {  // table-based routin
             route = self.defaultRoute;
         }
         route(message);
-    });
+    };
 
-    self.domain = function domain(name, sponsor) {
-        sponsor = sponsor || self.sponsor;
-        var dom = marshal.domain(name, sponsor, self.transport);
-        self.routingTable[name] = dom.receptionist;
+    self.domain = function domain(name) {
+        var dom = marshal.domain(name, self.transport);
+        self.routingTable[dom.name] = function route(message) {
+            dom.receptionist(message);  // call domain endpoint
+        };
         return dom;
     };
 
     return self;
 };
 
-marshal.domain = function domain(name, sponsor, transport) {
+marshal.domain = function domain(name, transport) {
     var self = {};
     var tokenMap = {};
 
-    self.name = name;
-    self.sponsor = sponsor;
-    self.transport = transport;
-
-    self.receptionist = sponsor(function receptionistBeh(message) {
+    self.receptionist = function endpoint(message) {
         // { address:<token>, content:<json> }
         var local = tokenMap[message.address];
         if (!local) { throw Error('Unknown address: ' + message.address); }
         local(decode(message.content));
-    });
+    };
+
+    var bindLocal = function bindLocal(remote, local) {
+        tokenMap[remote] = local;
+    };
 
     var localToRemote = function localToRemote(local) {
         var remote;
@@ -88,34 +90,37 @@ marshal.domain = function domain(name, sponsor, transport) {
             }
         }
         /* not found, create a new entry */
-        remote = name + '#' + generateCapability();
-        tokenMap[remote] = local;
+        remote = generateToken();
+        bindLocal(remote, local);
         return remote;
+    };
+    var generateToken = function generateToken() {
+        return self.name + '#' + generateCapability();
     };
     var generateCapability = function generateCapability() {
         try {
             return require('crypto').randomBytes(42).toString('base64');
         } catch (exception) {
-            // FIXME: if the system runs out of entropy, an exception will be
-            //        thrown; we need to define system behavior when we are out
-            //        of entropy, remembering that the entire OS crypto activity
-            //        (including any encrypted network traffic) will grind to
-            //        a halt while waiting for entropy to be available
+            // FIXME: if the system runs out of entropy, an exception will be thrown;
+            //        we need to define system behavior when we are out of entropy,
+            //        remembering that the entire OS crypto activity
+            //        (including any encrypted network traffic)
+            //        will grind to a halt while waiting for entropy to be available
             throw exception;
         }
     };
-
+    
     var remoteToLocal = function remoteToLocal(remote) {
         var local = tokenMap[remote];
         if (local === undefined) {
-            local = sponsor(proxy(remote));  // create new proxy
-            tokenMap[remote] = local;
+            local = newProxy(remote);  // create new proxy function
+            bindLocal(remote, local);
         }
         return local;
     };
-    var proxy = function proxy(remote) {
-        return function proxyBeh(message) {
-            transport({
+    var newProxy = function newProxy(remote) {
+        return function proxy(message) {
+            self.transport({
                 address: remote,
                 content: encode(message)
             });
@@ -123,9 +128,7 @@ marshal.domain = function domain(name, sponsor, transport) {
     };
 
     var encode = function encode(message) {
-        var json;
-        json = JSON.stringify(message, replacer);
-        return json;
+        return JSON.stringify(message, replacer);
     };
     var replacer = function replacer(key, value) {
         if (typeof value === 'function') {
@@ -147,9 +150,10 @@ marshal.domain = function domain(name, sponsor, transport) {
     };
 
     var decode = function decode(json) {
-        var message;
-        message = JSON.parse(json, reviver);
-        return message;
+        if (json === undefined) {
+            return undefined;
+        }
+        return JSON.parse(json, reviver);
     };
     var reviver = function reviver(key, value) {
         if (typeof value === 'string') {
@@ -167,10 +171,20 @@ marshal.domain = function domain(name, sponsor, transport) {
     var decodeString = function decodeString(value) {
         return value.slice(1);
     };
+    
+    var generateName = function generateName(name) {
+        if (!name) {
+            name = 'ansible://' + generateCapability() + '/';
+        }
+        return name;
+    };
 
+    self.name = generateName(name);
+    self.transport = transport || marshal.defaultRoute;
     self.encode = encode;
     self.decode = decode;
     self.localToRemote = localToRemote;
     self.remoteToLocal = remoteToLocal;
+    self.bindLocal = bindLocal;
     return self;
 };

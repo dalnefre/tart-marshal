@@ -37,22 +37,19 @@ var test = module.exports = {};
 
 test['default receptionist should not create proxies for unknown inbound addresses'] = function (test) {
     test.expect(1);
-    var stepping = tart.stepping();
-    var sponsor = stepping.sponsor;
 
-    var network = marshal.router(sponsor);
-    var domain = marshal.domain('tcp://localhost:1000/', sponsor, network.transport);
+    var network = marshal.router();
+    var domain = marshal.domain('tcp://localhost:1000/', network.transport);
 
-    domain.receptionist({
-        address: 'tcp://localhost:1000/#doesnotexist',
-        content: '"boom!"'
-    });
+    try {
+        domain.receptionist({
+            address: 'tcp://localhost:1000/#doesnotexist',
+            content: '"boom!"'
+        });
+    } catch (error) {
+        test.equal(error.message, 
+            "Unknown address: tcp://localhost:1000/#doesnotexist");
+    }
 
-    stepping.eventLoop({
-        fail: function (error) {
-            test.equal(error.message,
-                "Unknown address: tcp://localhost:1000/#doesnotexist");
-        }
-    });
     test.done();
 };

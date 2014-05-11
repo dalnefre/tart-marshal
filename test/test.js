@@ -51,7 +51,7 @@ test['ping/pong example from README'] = function (test) {
     var stepping = tart.stepping();
     var sponsor = stepping.sponsor;
 
-    var network = marshal.router(sponsor);
+    var network = marshal.router();
     var domain0 = network.domain('ocap:zero');
     var domain1 = network.domain('ocap:one');
 
@@ -72,8 +72,8 @@ test['ping/pong example from README'] = function (test) {
         test.equal(message.value, 'pinging');
     };
 
-    var ping = domain0.sponsor(pingBeh);
-    var pong = domain1.sponsor(pongBeh);
+    var ping = sponsor(pingBeh);
+    var pong = sponsor(pongBeh);
 
     var pingRemote = domain0.localToRemote(ping);
     var pingProxy = domain1.remoteToLocal(pingRemote);
@@ -89,11 +89,11 @@ test['can send simple string across domains'] = function (test) {
     var stepping = tart.stepping();
     var sponsor = stepping.sponsor;
 
-    var network = marshal.router(sponsor);
+    var network = marshal.router();
     var domain0 = network.domain('ocap:zero');
     var domain1 = network.domain('ocap:one');
 
-    var receiver = domain0.sponsor(function (message) {
+    var receiver = sponsor(function (message) {
         test.equal(message, 'hello domains');
     });
 

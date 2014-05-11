@@ -27,7 +27,7 @@ domain0:                          domain1:
 |                |                 |                |
 +----------------+                 +----------------+
 ```
-The process begins by asking a _domain_ to generate a _token_ representing a remote reference to a local actor. The _token_ is then used to create a _proxy_ in another domain. The _proxy_ is an actor, local to another domain, that _mashals_ and forwards messages across a network to a remote actor in the _domain_ which generated the _token_.
+The process begins by asking a _domain_ to generate a _token_ representing a remote reference to a local actor. The _token_ is then used to create a _proxy_ in another domain. The proxy _marshals_ and forwards messages across a network to a remote actor in the _domain_ which generated the _token_.
 
 On receipt of a _marshalled_ message, the destination _domain_ replaces any _tokens_ with references to local actors, and delivers the message to the target actor (identified by the _token_ used to create the _proxy_). Unrecognized _tokens_ are replaced by new local _proxies_ for remote references.
 
@@ -51,7 +51,7 @@ var marshal = require('../index.js');
 var stepping = tart.stepping();
 var sponsor = stepping.sponsor;
 
-var network = marshal.router(sponsor);
+var network = marshal.router();
 var domain0 = network.domain('ocap:zero');
 var domain1 = network.domain('ocap:one');
 
@@ -70,8 +70,8 @@ var pongBeh = function pongBeh(message) {
     console.log('pong', message.value);
 };
 
-var ping = domain0.sponsor(pingBeh);
-var pong = domain1.sponsor(pongBeh);
+var ping = sponsor(pingBeh);
+var pong = sponsor(pongBeh);
 
 var pingToken = domain0.localToRemote(ping);
 var pingProxy = domain1.remoteToLocal(pingToken);
@@ -98,67 +98,62 @@ stepping.eventLoop({
 
 **Public API**
 
-  * [marshal.router(sponsor, defaultRoute)](#marshalroutersponsor-defaultroute)
-  * [router.domain(name, sponsor)](#routerdomainname-sponsor)
-  * [marshal.domain(name, sponsor, transport)](#marshaldomainname-sponsor-transport)
+  * [marshal.router(\[defaultRoute\])](#marshalrouterdefaultroute)
+  * [router.domain(\[name\])](#routerdomainname)
+  * [marshal.domain(\[name\], \[transport\])](#marshaldomainnametransport)
   * [domain.decode(json)](#domaindecodejson)
   * [domain.encode(message)](#domainencodemessage)
   * [domain.localToRemote(actor)](#domainlocaltoremoteactor)
   * [domain.remoteToLocal(token)](#domainremotetolocaltoken)
+  * [domain.bindLocal(token, actor)](#bindlocaltokenactor)
   * [domain.receptionist(message)](#domainreceptionistmessage)
 
-### marshal.router(sponsor, defaultRoute)
+### marshal.router([defaultRoute])
 
-  * `sponsor`: _Function_ `function (behavior) {}`
-      Capability used to create new actors.
   * `defaultRoute`: _Function_ `function (message) {}` (default _throws_)
-      Actor used to make route messages to unrecognized domains.
+      Handle messages to unrecognized domains.
   * Return: _Object_ `router` capabilities.
-    * `sponsor`: _Function_ As specified on creation.
     * `defaultRoute`: _Function_ As specified on creation.
     * `transport`: _Function_ `function (message) {}`
-        Actor used to route messages to remote _domains_.
-    * `domain`: _Function_ `function (name[, sponsor]) {}`
-        Capability to create a domain registered to use this router as _transport_.
+        Route messages (in _transport_ format) to remote domains.
+    * `domain`: _Function_ `function (name) {}`
+        Create a domain registered to use this router as _transport_.
     * `routingTable`: _Object_ (default `{}`)
         Mapping from _domains_ to _transports_.
 
-Creates a new _router_ and returns a control object. The protocol for all _transports_ consist of messages with the format `{ address:<token>, message:<json> }`. The `router.transport` actor uses `router.routingTable` to look up routes (transport actors) based on the _domain_ portion of the `address`.
+Creates a new _router_ and returns a control object. The protocol for all _transports_ consists of messages with the format `{ address:<token>, message:<json> }` (called _transport_ format). The `router.transport` function uses `router.routingTable` to look up routes (transports) based on the _domain_ portion of the `address`.
 
-### router.domain(name\[, sponsor\])
+### router.domain([name])
 
-  * `name`: _String_ URI (without fragment) for this domain.
-  * `sponsor`: _Function_ `function (behavior) {}` (default `router.sponsor`)
-      Capability used to create new actors.
+  * `name`: _String_ URI (without fragment) for this domain. (default auto-generated)
   * Return: _Object_ `domain` capabilities.
     _Same as `marshal.domain()`_
 
-Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. This is a convenience function that uses `marshal.domain()`, providing `router.transport` as the _transport_. It also registers the `domain.receptionist` under `routingTable[name]`. If no `sponsor` is provided, `router.sponsor` is used as the default.
+Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. This is a convenience function that uses `marshal.domain()`, providing `router.transport` as the _transport_. It also registers the `domain.receptionist` under `router.routingTable[name]`.
 
-### marshal.domain(name, sponsor, transport)
+### marshal.domain([name], [transport])
 
-  * `name`: _String_ URI (without fragment) for this domain.
-  * `sponsor`: _Function_ `function (behavior) {}`
-      Capability used to create new actors.
-  * `transport`: _Function_ `function (message) {}`
-      Actor used to route messages (in _transport_ format) to remote domains.
+  * `name`: _String_ URI (without fragment) for this domain. (default auto-generated)
+  * `transport`: _Function_ `function (message) {}` (default _throws_)
+      Route messages (in _transport_ format) to remote domains.
   * Return: _Object_ `domain` capabilities.
-    * `name`: _String_ As specified on creation.
-    * `sponsor`: _Function_ As specified on creation.
+    * `name`: _String_ As specified (or generated) on creation.
     * `transport`: _Function_ As specified on creation.
     * `localToRemote`: _Function_ `function (actor) {}`
-        Capability used to make _tokens_ from local actor references.
+        Make a _token_ from a local _actor_ reference.
     * `remoteToLocal`: _Function_ `function (token) {}`
-        Capability used to make _proxies_ from remote actor _tokens_.
+        Make a _proxy_ from remote actor _token_.
+    * `bindLocal`: _Function_ `function (token, actor) {}`
+        Associate a _token_ with a local _actor_ reference.
     * `decode`: _Function_ `function (json) {}`
-        Capability used to decode messages for use within the `domain`.
+        Decode a message for use within the `domain`.
     * `encode`: _Function_ `function (message) {}`
-        Capability used to encode messages from within the `domain`.
+        Encode a message from within the `domain`.
     * `receptionist`: _Function_ `function (message) {}`
-        Actor used to decode messages (in _transport_ format)
-        and deliver them to actors local to the domain.
+        Decode a message (in _transport_ format)
+        and deliver it to an actor local to the domain.
 
-Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. Also provides a _receptionist_ actor, used by _transports_ to deliver remote messages.
+Creates a new _domain_ and returns capabilities to make _tokens_ and _proxies_. Also provides a _receptionist_, used by _transports_ to deliver remote messages.
 
 ### domain.decode(json)
 
@@ -172,7 +167,7 @@ Decodes `json`, replacing any capability references using [domain.remoteToLocal(
   * `message`: _Any_ Message from within the `domain` to be encoded for transport.
   * Return: _JSON_ Encoded `message` as JSON.
 
-Encodes the `message`, replacing any functions using [domain.localToRemote(actor)](#domainlocaltoremoteactor).
+Encodes the `message`, replacing any functions (actor references) using [domain.localToRemote(actor)](#domainlocaltoremoteactor).
 
 ### domain.localToRemote(actor)
 
@@ -184,12 +179,21 @@ Return a _token_ representing the local `actor`. Multiple request with the same 
 ### domain.remoteToLocal(token)
 
   * `token`: _String_ remote actor reference _token_.
-  * Return: _Function_ `function (message) {}` _proxy_ actor reference.
+  * Return: _Function_ `function (message) {}` _proxy_ capability.
 
-Return a _proxy_ that will forward messages to the remote actor represented by the `token`. The _proxy_ is a local actor created by `domain.sponsor()`. Multiple request with the same `token` always return the same _proxy_.
+Return a _proxy_ that will forward messages to the remote actor represented by the `token`. Multiple request with the same `token` always return the same _proxy_.
+
+### domain.bindLocal(token, actor)
+
+  * `token`: _String_ remote actor reference _token_.
+  * `actor`: _Function_ `function (message) {}` local actor reference.
+
+Associate a `token` with a local `actor`. Future calls to `domain.localToRemote` with this `actor` always return this `token`.
 
 ### domain.receptionist(message)
 
   * `message`: _Object_ Asynchronous message to domain _receptionist_ actor.
     * `address`: _String_ destination actor reference _token_.
     * `json`: _String_ marshal-encoded message content.
+
+Decodes `json` using [domain.decode(json)](#domaindecodejson) and sends the result as a message to the actor designated by decoding `address` using [domain.remoteToLocal(token)](#domainremotetolocaltoken).  The original `message` encoding is called _transport_ format.

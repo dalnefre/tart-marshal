@@ -36,7 +36,7 @@ var marshal = require('../index.js');
 var stepping = tart.stepping();
 var sponsor = stepping.sponsor;
 
-var network = marshal.router(sponsor);
+var network = marshal.router();
 var domain0 = network.domain('ocap:zero');
 var domain1 = network.domain('ocap:one');
 
@@ -55,8 +55,8 @@ var pongBeh = function pongBeh(message) {
     console.log('pong', message.value);
 };
 
-var ping = domain0.sponsor(pingBeh);
-var pong = domain1.sponsor(pongBeh);
+var ping = sponsor(pingBeh);
+var pong = sponsor(pongBeh);
 
 var pingToken = domain0.localToRemote(ping);
 var pingProxy = domain1.remoteToLocal(pingToken);

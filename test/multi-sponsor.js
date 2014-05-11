@@ -37,13 +37,12 @@ var test = module.exports = {};
 
 test['ping/pong example with multiple sponsors'] = function (test) {
     test.expect(4);
-    var netSponsor = tart.minimal();
     var dom0Sponsor = tart.minimal();
     var dom1Sponsor = tart.minimal();
 
-    var network = marshal.router(netSponsor);
-    var domain0 = network.domain('ocap:zero', dom0Sponsor);
-    var domain1 = network.domain('ocap:one', dom1Sponsor);
+    var network = marshal.router();
+    var domain0 = network.domain('ocap:zero');
+    var domain1 = network.domain('ocap:one');
 
     var pingBeh = function pingBeh(message) {
         if (message.value === undefined) {
@@ -63,8 +62,8 @@ test['ping/pong example with multiple sponsors'] = function (test) {
         test.equal(message.value, 'pinging');
     };
 
-    var ping = domain0.sponsor(pingBeh);
-    var pong = domain1.sponsor(pongBeh);
+    var ping = dom0Sponsor(pingBeh);
+    var pong = dom1Sponsor(pongBeh);
 
     var pingToken = domain0.localToRemote(ping);
     var pingProxy = domain1.remoteToLocal(pingToken);
