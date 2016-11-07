@@ -4,7 +4,7 @@ index.js - "tart-marshal": Send messages between memory domains (tart module)
 
 The MIT License (MIT)
 
-Copyright (c) 2013 Dale Schumacher
+Copyright (c) 2013-2016 Dale Schumacher, Tristan Slominski
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
