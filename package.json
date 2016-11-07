@@ -3,10 +3,11 @@
   "version": "0.3.1",
   "description": "Send messages between memory domains (tart module)",
   "scripts": {
-    "all-examples": "npm run http && npm run https && npm run tcp && npm run tls && npm run udp",
+    "all-examples": "npm run http && npm run https && npm run tcp && npm run tls && npm run udp && npm run random-bytes",
     "http": "node examples/http.js",
     "https": "node examples/https.js",
     "inject-examples": "node scripts/injectExamples.js",
+    "random-bytes": "node examples/randomBytes.js",
     "readme": "node examples/readme.js",
     "tcp": "node examples/tcp.js",
     "test": "node scripts/test.js",
@@ -15,6 +16,7 @@
   },
   "main": "index.js",
   "devDependencies": {
+    "deterministic-pseudorandombytes": "0.1.0",
     "tart-stepping": "0.2.x",
     "tart-transport-http": "0.1.0",
     "tart-transport-https": "0.1.0",

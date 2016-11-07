@@ -30,9 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 "use strict";
 
+var crypto = require("crypto");
 var marshal = module.exports;
 
-marshal.randomBytes = require("crypto").randomBytes;
+marshal.randomBytes = crypto.randomBytes;
 
 marshal.defaultRoute = function route(message) {
     throw Error('No route for ' + message.address);
