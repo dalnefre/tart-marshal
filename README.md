@@ -107,6 +107,7 @@ stepping.eventLoop({
   * [domain.remoteToLocal(token)](#domainremotetolocaltoken)
   * [domain.bindLocal(token, actor)](#bindlocaltokenactor)
   * [domain.receptionist(message)](#domainreceptionistmessage)
+  * [marshal.randomBytes(size\[, callback\])](#marshalrandombytessize-callback)
 
 ### marshal.router([defaultRoute])
 
@@ -197,3 +198,10 @@ Associate a `token` with a local `actor`. Future calls to `domain.localToRemote`
     * `json`: _String_ marshal-encoded message content.
 
 Decodes `json` using [domain.decode(json)](#domaindecodejson) and sends the result as a message to the actor designated by decoding `address` using [domain.remoteToLocal(token)](#domainremotetolocaltoken).  The original `message` encoding is called _transport_ format.
+
+### marshal.randomBytes(size[, callback])
+
+  * `size`: _Integer_ Number of bytes to generate.
+  * `callback`: _Function_ _(Default: undefined)_ `function (error, buffer) {}` Callback to invoke once bytes are generated.
+
+Exposed to allow for replacement in case of need for deterministic testing.

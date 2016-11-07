@@ -4,7 +4,7 @@ index.js - "tart-marshal": Send messages between memory domains (tart module)
 
 The MIT License (MIT)
 
-Copyright (c) 2013 Dale Schumacher
+Copyright (c) 2013-2016 Dale Schumacher, Tristan Slominski
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -30,7 +30,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 "use strict";
 
+var crypto = require("crypto");
 var marshal = module.exports;
+
+marshal.randomBytes = crypto.randomBytes;
 
 marshal.defaultRoute = function route(message) {
     throw Error('No route for ' + message.address);
@@ -98,18 +101,9 @@ marshal.domain = function domain(name, transport) {
         return self.name + '#' + generateCapability();
     };
     var generateCapability = function generateCapability() {
-        try {
-            return require('crypto').randomBytes(42).toString('base64');
-        } catch (exception) {
-            // FIXME: if the system runs out of entropy, an exception will be thrown;
-            //        we need to define system behavior when we are out of entropy,
-            //        remembering that the entire OS crypto activity
-            //        (including any encrypted network traffic)
-            //        will grind to a halt while waiting for entropy to be available
-            throw exception;
-        }
+        return marshal.randomBytes(42).toString('base64');
     };
-    
+
     var remoteToLocal = function remoteToLocal(remote) {
         var local = tokenMap[remote];
         if (local === undefined) {
@@ -171,7 +165,7 @@ marshal.domain = function domain(name, transport) {
     var decodeString = function decodeString(value) {
         return value.slice(1);
     };
-    
+
     var generateName = function generateName(name) {
         if (!name) {
             name = 'ansible://' + generateCapability() + '/';
